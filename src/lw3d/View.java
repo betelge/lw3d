@@ -1,4 +1,6 @@
-package testApplet;
+package lw3d;
+
+import lw3d.renderer.Renderer;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextCapabilities;
@@ -7,7 +9,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GLContext;
 
-import testApplet.renderer.Renderer;
 
 public class View {
 

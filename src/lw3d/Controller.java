@@ -1,4 +1,4 @@
-package testApplet;
+package lw3d;
 
 public class Controller {
 	

@@ -1,4 +1,4 @@
-package testApplet.renderer;
+package lw3d.renderer;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -32,13 +32,13 @@ public class GeometryManager {
 		public int offset;
 	}*/
 
-	/*public class GeometryInfo {
+	public class GeometryInfo {
 		// VAO handle
 		public int VAO = 0;
-		*/
-		/*int indexOffset;
 
-		Set<Attribute> attributes = new HashSet<Attribute>();*/
+		/*int indexOffset;*/
+
+		//Set<Attribute> attributes = new HashSet<Attribute>();
 	}
 
 	Map<Geometry, GeometryInfo> geometryInfos = new HashMap<Geometry, GeometryInfo>();
@@ -111,22 +111,22 @@ public class GeometryManager {
 			ARBVertexBufferObject.glBufferSubDataARB(
 					ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB,
 					indexOffset, geometry.getIndices());
-			geometryInfo.indexOffset = indexOffset;
+			//geometryInfo.indexOffset = indexOffset;
 			indexOffset += geometry.getIndices().capacity() * 4;
 
 			Iterator<Geometry.Attribute> it = geometry.getAttributes()
 					.iterator();
 
-			Set<Attribute> attributes = new HashSet<Attribute>();
+			//Set<Attribute> attributes = new HashSet<Attribute>();
 
 			Geometry.Attribute geometryAttribute;
 			while (it.hasNext()) {
 				geometryAttribute = it.next();
-				Attribute attribute = new Attribute();
+				/*Attribute attribute = new Attribute();
 				attribute.name = geometryAttribute.name;
 				attribute.normalized = geometryAttribute.normalized;
 				attribute.type = geometryAttribute.type;
-				attribute.size = geometryAttribute.size;
+				attribute.size = geometryAttribute.size;*/
 
 				switch (geometryAttribute.type) {
 				case BYTE:
@@ -141,10 +141,10 @@ public class GeometryManager {
 					break;
 				}
 				
-				attribute.offset = dataOffset;
+				/*attribute.offset = dataOffset;
 				attribute.stride = 0;
 				
-				attributes.add(attribute);
+				attributes.add(attribute);*/
 				
 				dataOffset += geometry.getIndices().capacity() * 4;
 

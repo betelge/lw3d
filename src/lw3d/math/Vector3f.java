@@ -1,4 +1,4 @@
-package testApplet.math;
+package lw3d.math;
 
 public class Vector3f {
 	public float x, y, z;

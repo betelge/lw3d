@@ -1,9 +1,10 @@
-package testApplet.renderer;
+package lw3d.renderer;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import testApplet.math.Vector3f;
+import lw3d.math.Vector3f;
+
 
 public class Node {
 	private Node parent = null;

@@ -1,4 +1,4 @@
-package testApplet.renderer;
+package lw3d.renderer;
 
 public class GeometryNode extends Node {
 	

@@ -1,4 +1,4 @@
-package testApplet;
+package lw3d;
 
 import java.applet.Applet;
 

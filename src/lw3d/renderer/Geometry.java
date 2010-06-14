@@ -1,4 +1,4 @@
-package testApplet.renderer;
+package lw3d.renderer;
 
 import java.nio.Buffer;
 import java.nio.IntBuffer;

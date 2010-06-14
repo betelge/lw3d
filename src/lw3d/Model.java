@@ -1,7 +1,7 @@
-package testApplet;
+package lw3d;
 
-import testApplet.renderer.CameraNode;
-import testApplet.renderer.Node;
+import lw3d.renderer.CameraNode;
+import lw3d.renderer.Node;
 
 public class Model {
 	Node rootNode = new Node();

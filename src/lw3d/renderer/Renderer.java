@@ -1,8 +1,10 @@
-package testApplet.renderer;
+package lw3d.renderer;
 
 import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
+
+import lw3d.math.Vector3f;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ARBVertexBufferObject;
@@ -11,7 +13,6 @@ import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GLContext;
 
-import testApplet.math.Vector3f;
 
 public class Renderer {
 
@@ -83,7 +84,6 @@ public class Renderer {
 					ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB,
 					geometryManager.getDataVBOHandle(geometry));
 			
-			ARBVertexProgram.
 			
 		}
 	}
