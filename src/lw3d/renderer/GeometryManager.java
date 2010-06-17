@@ -10,12 +10,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.ARBBufferObject;
+import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
+import org.lwjgl.opengl.ARBVertexProgram;
 
 public class GeometryManager {
-	
+
 	/*
-	 * 		TODO:	Use VAOs!
+	 * TODO: Use VAOs!
 	 */
 
 	private int indexVBOHandle;
@@ -23,22 +26,21 @@ public class GeometryManager {
 	private int indexOffset = 0;
 	private int dataOffset = 0;
 
-	/*public class Attribute {
-		public String name;
-		int size;
-		public Geometry.Type type;
-		public boolean normalized;
-		public int stride;
-		public int offset;
-	}*/
+	/*
+	 * public class Attribute { public String name; int size; public
+	 * Geometry.Type type; public boolean normalized; public int stride; public
+	 * int offset; }
+	 */
 
 	public class GeometryInfo {
 		// VAO handle
 		public int VAO = 0;
 
-		/*int indexOffset;*/
+		public int indexOffset;
 
-		//Set<Attribute> attributes = new HashSet<Attribute>();
+		public int count;
+
+		// Set<Attribute> attributes = new HashSet<Attribute>();
 	}
 
 	Map<Geometry, GeometryInfo> geometryInfos = new HashMap<Geometry, GeometryInfo>();
@@ -93,7 +95,7 @@ public class GeometryManager {
 		else
 			return null;
 	}
-	
+
 	public int getVAO(Geometry geometry) {
 		if (tryToUpload(geometry))
 			return geometryInfos.get(geometry).VAO;
@@ -105,29 +107,47 @@ public class GeometryManager {
 		if (geometryInfos.containsKey(geometry))
 			return true;
 		else {
-			
 			GeometryInfo geometryInfo = new GeometryInfo();
 
+			// Create and bind a VAO
+			geometryInfo.VAO = ARBVertexArrayObject.glGenVertexArrays();
+			ARBVertexArrayObject.glBindVertexArray(geometryInfo.VAO);
+
+			// Bind VBOs to the VAO
+			ARBVertexBufferObject.glBindBufferARB(
+					ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB,
+					indexVBOHandle);
+			ARBVertexBufferObject.glBindBufferARB(
+					ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, dataVBOHandle);
+
+			// Upload index data to the index VBO
 			ARBVertexBufferObject.glBufferSubDataARB(
 					ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB,
 					indexOffset, geometry.getIndices());
-			//geometryInfo.indexOffset = indexOffset;
+
+			// Set and update the index VBO offset
+			geometryInfo.indexOffset = indexOffset;
 			indexOffset += geometry.getIndices().capacity() * 4;
 
+			// Iterate through the attributes
 			Iterator<Geometry.Attribute> it = geometry.getAttributes()
 					.iterator();
 
-			//Set<Attribute> attributes = new HashSet<Attribute>();
+			// Set<Attribute> attributes = new HashSet<Attribute>();
 
+			int i = 0;
 			Geometry.Attribute geometryAttribute;
 			while (it.hasNext()) {
 				geometryAttribute = it.next();
-				/*Attribute attribute = new Attribute();
-				attribute.name = geometryAttribute.name;
-				attribute.normalized = geometryAttribute.normalized;
-				attribute.type = geometryAttribute.type;
-				attribute.size = geometryAttribute.size;*/
+				/*
+				 * Attribute attribute = new Attribute(); attribute.name =
+				 * geometryAttribute.name; attribute.normalized =
+				 * geometryAttribute.normalized; attribute.type =
+				 * geometryAttribute.type; attribute.size =
+				 * geometryAttribute.size;
+				 */
 
+				// Upload attribute data to the data VBO
 				switch (geometryAttribute.type) {
 				case BYTE:
 					ARBVertexBufferObject.glBufferSubDataARB(
@@ -140,16 +160,26 @@ public class GeometryManager {
 							dataOffset, (FloatBuffer) geometryAttribute.buffer);
 					break;
 				}
-				
-				/*attribute.offset = dataOffset;
-				attribute.stride = 0;
-				
-				attributes.add(attribute);*/
-				
+
+				// Bind the attribute to the VAO
+				ARBVertexProgram.glEnableVertexAttribArrayARB(i);
+				ARBVertexProgram.glVertexAttribPointerARB(i,
+						geometryAttribute.size, geometryAttribute.type
+								.getType(), geometryAttribute.normalized, 0,
+						dataOffset);
+				i++;
+
+				/*
+				 * attribute.offset = dataOffset; attribute.stride = 0;
+				 * 
+				 * attributes.add(attribute);
+				 */
+
+				// Update the data VBO offset
 				dataOffset += geometry.getIndices().capacity() * 4;
 
 			}
-			
+
 			geometryInfos.put(geometry, geometryInfo);
 
 			return true;

@@ -5,19 +5,19 @@ import java.util.Set;
 import java.util.HashSet;
 
 import lw3d.math.Vector3f;
+import lw3d.renderer.GeometryManager.GeometryInfo;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.ARBVertexBufferObject;
-import org.lwjgl.opengl.ARBVertexProgram;
+import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
-
 
 public class Renderer {
 
 	ContextCapabilities capabilities;
-	
+
 	GeometryManager geometryManager;
 
 	Set<GeometryNode> renderNodes = new HashSet<GeometryNode>();
@@ -32,6 +32,8 @@ public class Renderer {
 		}
 
 		capabilities = GLContext.getCapabilities();
+		
+		// TODO: Optionally set (core) profile
 
 		// Demand VBO support
 		if (!capabilities.GL_ARB_vertex_buffer_object)
@@ -53,8 +55,7 @@ public class Renderer {
 			System.out.println("OpenGL14");
 		else if (capabilities.OpenGL11)
 			System.out.println("OpenGL11");
-		
-		
+
 		geometryManager = new GeometryManager();
 	}
 
@@ -64,27 +65,38 @@ public class Renderer {
 
 		ProcessNode(rootNode, cameraNode.getPosition().mult(-1f));
 
+		// Current objects. Used for performence.
+		Geometry currentGeometry = null;
+		int currentVAOhandle = -1;
+		GeometryInfo geometryInfo = null;
+
 		Iterator<GeometryNode> it = renderNodes.iterator();
 		while (it.hasNext()) {
 			GeometryNode geometryNode = it.next();
 			// TODO: position -> transform
-			// TODO: absolutePosition -> get transform from array made by ProcessNode
+			// TODO: absolutePosition -> get transform from array made by
+			// ProcessNode
 			Vector3f position = geometryNode.getAbsolutePosition();
-			
+
 			Geometry geometry = geometryNode.getGeometry();
+
+			if (currentGeometry != geometry) {
+
+				geometryInfo = geometryManager.getGeometryInfo(geometry);
+
+				if (currentVAOhandle != geometryInfo.VAO) {
+					// Bind VAO
+					ARBVertexArrayObject.glBindVertexArray(geometryInfo.VAO);
+					currentVAOhandle = geometryInfo.VAO;
+				}
+			}
 			
-			/*
-			 * 		TODO:	Use VAOs!
-			 */
+			// TODO: Set metrial ( shader, uniforms )
+			// TODO: Set transformation uniform(s)
 			
-			ARBVertexBufferObject.glBindBufferARB(
-					ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB,
-					geometryManager.getIndexVBOHandle(geometry));
-			ARBVertexBufferObject.glBindBufferARB(
-					ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB,
-					geometryManager.getDataVBOHandle(geometry));
-			
-			
+			GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
+					GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
+
 		}
 	}
 

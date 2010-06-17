@@ -2,13 +2,13 @@ package lw3d.renderer;
 
 import java.nio.Buffer;
 import java.nio.IntBuffer;
-import java.util.Set;
+import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
 public class Geometry {
 	IntBuffer indices;
-	Set<Attribute> attributes;
+	List<Attribute> attributes;
 	
 	enum Type {		
 		BYTE(GL11.GL_BYTE), FLOAT(GL11.GL_FLOAT);
@@ -32,7 +32,7 @@ public class Geometry {
 		public boolean normalized;
 	}
 	
-	public Geometry(IntBuffer indices, Set<Attribute> attributes) {
+	public Geometry(IntBuffer indices, List<Attribute> attributes) {
 		this.indices = indices;
 		this.attributes = attributes;
 	}
@@ -41,7 +41,7 @@ public class Geometry {
 		return indices;
 	}
 	
-	public Set<Attribute> getAttributes() {
+	public List<Attribute> getAttributes() {
 		return attributes;
 	}
 }
