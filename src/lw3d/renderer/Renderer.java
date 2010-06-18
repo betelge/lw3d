@@ -10,6 +10,8 @@ import lw3d.renderer.GeometryManager.GeometryInfo;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexArrayObject;
+import org.lwjgl.opengl.ARBVertexProgram;
+import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
@@ -96,10 +98,13 @@ public class Renderer {
 
 			// TODO: Set meterial ( shader, uniforms )
 			// TODO: Set transformation uniform(s)
+			
+			int program = materialManager.getShaderProgramHandle(geometryNode.getMaterial().shaderProgram);
+			
+			ARBShaderObjects.glUseProgramObjectARB(program);
 
-			ARBShaderObjects.glUseProgramObjectARB(materialManager
-					.getShaderProgramHandle(geometryNode.getMaterial().shaderProgram));
-
+			GL11.glPointSize(100);
+			
 			GL11.glDrawElements(GL11.GL_POINTS, 1 /* geometryInfo.count */,
 					GL11.GL_UNSIGNED_INT, 0 /* geometryInfo.indexOffset */);
 		}

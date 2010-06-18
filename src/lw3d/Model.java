@@ -54,8 +54,8 @@ public class Model {
 		Geometry cubeMesh = new Geometry(indices, aList);
 		
 		Set<Shader> shaders = new HashSet<Shader>();
-		shaders.add(new Shader(Shader.Type.VERTEX, "#version 130\nvoid main()\n{\ngl_Position = vec4(0.0,0.0,0.0,1.0);\n}\n"));
-		shaders.add(new Shader(Shader.Type.FRAGMENT, "#version 130\nvoid main()\n{\ngl_FragColor = vec4(1.0,0.0,0.0,1.0);\n}\n"));
+		shaders.add(new Shader(Shader.Type.VERTEX, "#version 120\nvoid main()\n{\ngl_Position = vec4(0.0,0.0,0.0,1.0);\n}\n"));
+		shaders.add(new Shader(Shader.Type.FRAGMENT, "#version 120\nvoid main()\n{\ngl_FragColor = vec4(1.0,0.0,0.0,1.0);\n}\n"));
 		ShaderProgram shaderProgram = new ShaderProgram(shaders);
 		Material defaultMaterial = new Material(shaderProgram);
 		

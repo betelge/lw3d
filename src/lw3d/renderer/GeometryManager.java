@@ -14,6 +14,7 @@ import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.ARBVertexProgram;
+import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.GL11;
 
 public class GeometryManager {
@@ -168,14 +169,21 @@ public class GeometryManager {
 							ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB,
 							dataOffset, (FloatBuffer) geometryAttribute.buffer);
 					break;
+				default:
+					assert(false);	
 				}
 
 				// Bind the attribute to the VAO
-				//ARBVertexProgram.glEnableVertexAttribArrayARB(i);
+				ARBVertexProgram.glEnableVertexAttribArrayARB(i);
 				ARBVertexProgram.glVertexAttribPointerARB(i,
-						geometryAttribute.size, geometryAttribute.type
-								.getType(), geometryAttribute.normalized, 0,
-						dataOffset);
+						3/*geometryAttribute.size*/, GL11.GL_UNSIGNED_INT /*geometryAttribute.type
+								.getType()*/, false /*geometryAttribute.normalized*/, 12 /*0*/,
+						0 /*dataOffset*/);
+				
+				// TODO: fix this bind to shader program
+				//ARBVertexShader.glBindAttribLocationARB(program, i, "vertPosition");
+
+
 				i++;
 
 				/*
