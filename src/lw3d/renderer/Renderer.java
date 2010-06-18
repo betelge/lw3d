@@ -8,6 +8,7 @@ import lw3d.math.Vector3f;
 import lw3d.renderer.GeometryManager.GeometryInfo;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
@@ -19,6 +20,7 @@ public class Renderer {
 	ContextCapabilities capabilities;
 
 	GeometryManager geometryManager;
+	MaterialManager materialManager;
 
 	Set<GeometryNode> renderNodes = new HashSet<GeometryNode>();
 
@@ -32,7 +34,7 @@ public class Renderer {
 		}
 
 		capabilities = GLContext.getCapabilities();
-		
+
 		// TODO: Optionally set (core) profile
 
 		// Demand VBO support
@@ -57,6 +59,7 @@ public class Renderer {
 			System.out.println("OpenGL11");
 
 		geometryManager = new GeometryManager();
+		materialManager = new MaterialManager();
 	}
 
 	// TODO: Change argument to RenderPass(Node, FBO)
@@ -90,12 +93,19 @@ public class Renderer {
 					currentVAOhandle = geometryInfo.VAO;
 				}
 			}
-			
-			// TODO: Set metrial ( shader, uniforms )
+
+			// TODO: Set meterial ( shader, uniforms )
 			// TODO: Set transformation uniform(s)
-			
-			GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
+
+			ARBShaderObjects.glUseProgramObjectARB(materialManager
+					.getShaderProgramHandle(geometryNode.getMaterial().shaderProgram));
+
+			System.out.println("pre-draw");
+
+			GL11.glDrawElements(GL11.GL_TRIANGLES, 1 /* geometryInfo.count */,
 					GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
+
+			System.out.println("post-draw");
 
 		}
 	}

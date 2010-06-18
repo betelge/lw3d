@@ -10,12 +10,12 @@ public class Geometry {
 	IntBuffer indices;
 	List<Attribute> attributes;
 	
-	enum Type {		
+	public enum Type {		
 		BYTE(GL11.GL_BYTE), FLOAT(GL11.GL_FLOAT);
 		
 		int type;
 		
-		private Type(int type) {
+		Type(int type) {
 			this.type = type;
 		}
 		
@@ -24,12 +24,12 @@ public class Geometry {
 		}
 	}
 	
-	class Attribute {
+	static public class Attribute {
 		public String name;
 		public Type type;
 		public int size;
 		public Buffer buffer;
-		public boolean normalized;
+		public boolean normalized = false;
 	}
 	
 	public Geometry(IntBuffer indices, List<Attribute> attributes) {

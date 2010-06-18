@@ -14,6 +14,7 @@ import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.ARBVertexProgram;
+import org.lwjgl.opengl.GL11;
 
 public class GeometryManager {
 
@@ -39,6 +40,11 @@ public class GeometryManager {
 		public int indexOffset;
 
 		public int count;
+		
+		// TODO: fix mode enum
+		/*public enum Mode {
+			TRIANGLES(GL11.GL_TRIANGLES), QUADS(GL11.GL_QUADS); // ...
+		}*/
 
 		// Set<Attribute> attributes = new HashSet<Attribute>();
 	}
@@ -128,6 +134,9 @@ public class GeometryManager {
 			// Set and update the index VBO offset
 			geometryInfo.indexOffset = indexOffset;
 			indexOffset += geometry.getIndices().capacity() * 4;
+			
+			// TODO: Do this better!
+			geometryInfo.count = 1;//geometry.getIndices().capacity() / 3;
 
 			// Iterate through the attributes
 			Iterator<Geometry.Attribute> it = geometry.getAttributes()
@@ -181,6 +190,10 @@ public class GeometryManager {
 			}
 
 			geometryInfos.put(geometry, geometryInfo);
+			
+			// Unbind the VAO
+			ARBVertexArrayObject.glBindVertexArray(0);
+			
 
 			return true;
 		}
