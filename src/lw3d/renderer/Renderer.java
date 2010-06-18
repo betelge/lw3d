@@ -100,13 +100,8 @@ public class Renderer {
 			ARBShaderObjects.glUseProgramObjectARB(materialManager
 					.getShaderProgramHandle(geometryNode.getMaterial().shaderProgram));
 
-			System.out.println("pre-draw");
-
-			GL11.glDrawElements(GL11.GL_TRIANGLES, 1 /* geometryInfo.count */,
-					GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
-
-			System.out.println("post-draw");
-
+			GL11.glDrawElements(GL11.GL_POINTS, 1 /* geometryInfo.count */,
+					GL11.GL_UNSIGNED_INT, 0 /* geometryInfo.indexOffset */);
 		}
 	}
 

@@ -9,6 +9,7 @@ import lw3d.renderer.ShaderProgram.Shader;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexShader;
+import org.lwjgl.opengl.GL11;
 
 public class MaterialManager {
 	
@@ -36,9 +37,21 @@ public class MaterialManager {
 			ARBShaderObjects.glCompileShaderARB(shaderHandle);
 			
 			ARBShaderObjects.glAttachObjectARB(shaderProgramHandle, shaderHandle);
+			
+			System.out.println("logShad: " +
+					ARBShaderObjects.glGetInfoLogARB(shaderHandle, 2048));
+			
 		}
 		
 		ARBShaderObjects.glLinkProgramARB(shaderProgramHandle);
+		
+		System.out.println("logProg: " + 
+				ARBShaderObjects.glGetInfoLogARB(shaderProgramHandle, 2048));
+		
+		ARBShaderObjects.glValidateProgramARB(shaderProgramHandle);
+		System.out.println("validProgStat: " +
+				ARBShaderObjects.glGetObjectParameteriARB(shaderProgramHandle,
+						ARBShaderObjects.GL_OBJECT_VALIDATE_STATUS_ARB));
 		
 		shaderProgramHandles.put(shaderProgram, shaderProgramHandle);
 		

@@ -171,7 +171,7 @@ public class GeometryManager {
 				}
 
 				// Bind the attribute to the VAO
-				ARBVertexProgram.glEnableVertexAttribArrayARB(i);
+				//ARBVertexProgram.glEnableVertexAttribArrayARB(i);
 				ARBVertexProgram.glVertexAttribPointerARB(i,
 						geometryAttribute.size, geometryAttribute.type
 								.getType(), geometryAttribute.normalized, 0,
