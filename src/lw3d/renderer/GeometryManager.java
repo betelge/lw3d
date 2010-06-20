@@ -136,8 +136,7 @@ public class GeometryManager {
 			geometryInfo.indexOffset = indexOffset;
 			indexOffset += geometry.getIndices().capacity() * 4;
 			
-			// TODO: Do this better!
-			geometryInfo.count = 1;//geometry.getIndices().capacity() / 3;
+			geometryInfo.count = geometry.getIndices().capacity();
 
 			// Iterate through the attributes
 			Iterator<Geometry.Attribute> it = geometry.getAttributes()
@@ -161,29 +160,22 @@ public class GeometryManager {
 				switch (geometryAttribute.type) {
 				case BYTE:
 					ARBVertexBufferObject.glBufferSubDataARB(
-							ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB,
+							ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB,
 							dataOffset, (ByteBuffer) geometryAttribute.buffer);
 					break;
 				case FLOAT:
 					ARBVertexBufferObject.glBufferSubDataARB(
-							ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB,
+							ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB,
 							dataOffset, (FloatBuffer) geometryAttribute.buffer);
 					break;
-				default:
-					assert(false);	
 				}
 
 				// Bind the attribute to the VAO
-				ARBVertexProgram.glEnableVertexAttribArrayARB(i);
-				ARBVertexProgram.glVertexAttribPointerARB(i,
-						3/*geometryAttribute.size*/, GL11.GL_UNSIGNED_INT /*geometryAttribute.type
-								.getType()*/, false /*geometryAttribute.normalized*/, 12 /*0*/,
-						0 /*dataOffset*/);
-				
-				// TODO: fix this bind to shader program
-				//ARBVertexShader.glBindAttribLocationARB(program, i, "vertPosition");
-
-
+				ARBVertexShader.glEnableVertexAttribArrayARB(i);
+				ARBVertexShader.glVertexAttribPointerARB(i,
+						geometryAttribute.size, geometryAttribute.type
+								.getType(), geometryAttribute.normalized, 0,
+						dataOffset);				
 				i++;
 
 				/*

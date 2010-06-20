@@ -1,16 +1,18 @@
 package lw3d.renderer;
 
+import java.nio.FloatBuffer;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.HashSet;
 
 import lw3d.math.Vector3f;
 import lw3d.renderer.GeometryManager.GeometryInfo;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexArrayObject;
-import org.lwjgl.opengl.ARBVertexProgram;
 import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
@@ -23,6 +25,9 @@ public class Renderer {
 
 	GeometryManager geometryManager;
 	MaterialManager materialManager;
+
+	// TODO: Create matrix class
+	FloatBuffer transformMatrixBuffer;
 
 	Set<GeometryNode> renderNodes = new HashSet<GeometryNode>();
 
@@ -62,6 +67,12 @@ public class Renderer {
 
 		geometryManager = new GeometryManager();
 		materialManager = new MaterialManager();
+
+		transformMatrixBuffer = BufferUtils.createFloatBuffer(16);
+		for(int i = 0; i < 16; i++) {
+			transformMatrixBuffer.put((float)i / 160f);
+		}
+		transformMatrixBuffer.flip();
 	}
 
 	// TODO: Change argument to RenderPass(Node, FBO)
@@ -97,16 +108,28 @@ public class Renderer {
 			}
 
 			// TODO: Set meterial ( shader, uniforms )
-			// TODO: Set transformation uniform(s)
-			
-			int program = materialManager.getShaderProgramHandle(geometryNode.getMaterial().shaderProgram);
-			
-			ARBShaderObjects.glUseProgramObjectARB(program);
+			int shaderProgram = materialManager
+					.getShaderProgramHandle(geometryNode.getMaterial().shaderProgram);
+			ARBShaderObjects.glUseProgramObjectARB(shaderProgram);
 
-			GL11.glPointSize(100);
-			
-			GL11.glDrawElements(GL11.GL_POINTS, 1 /* geometryInfo.count */,
-					GL11.GL_UNSIGNED_INT, 0 /* geometryInfo.indexOffset */);
+			// TODO: Set transformation uniform(s)
+			int matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
+					shaderProgram, "transformMatrix");
+			System.out.println("transformationMAtrix location: " + matrixLocation);
+			ARBShaderObjects.glUniformMatrix4ARB(matrixLocation, false,
+					transformMatrixBuffer);
+
+			// Bind vertex attribute names
+			ListIterator<Geometry.Attribute> lit = geometry.attributes
+					.listIterator();
+			int i = 0;
+			while (lit.hasNext()) {
+				ARBVertexShader.glBindAttribLocationARB(shaderProgram, i, lit
+						.next().name);
+			}
+
+			GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
+					GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
 		}
 	}
 

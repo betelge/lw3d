@@ -3,18 +3,13 @@ package lw3d;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.lwjgl.BufferUtils;
 
 import lw3d.renderer.CameraNode;
 import lw3d.renderer.Geometry;
-import lw3d.renderer.GeometryManager;
 import lw3d.renderer.GeometryNode;
 import lw3d.renderer.Material;
 import lw3d.renderer.Node;
@@ -33,19 +28,19 @@ public class Model {
 		indices.flip();
 		
 		Attribute positions = new Attribute();
-		positions.name = "vertPositions";
+		positions.name = "pos";
 		positions.type = Geometry.Type.FLOAT;
 		positions.size = 3;
 		positions.buffer = BufferUtils.createFloatBuffer(4 * 3*3);
 		((FloatBuffer) positions.buffer).put(-1f);
-		((FloatBuffer) positions.buffer).put(-1f);
-		((FloatBuffer) positions.buffer).put(0);
-		((FloatBuffer) positions.buffer).put(-1f);
 		((FloatBuffer) positions.buffer).put(1f);
 		((FloatBuffer) positions.buffer).put(0);
 		((FloatBuffer) positions.buffer).put(1f);
 		((FloatBuffer) positions.buffer).put(1f);
 		((FloatBuffer) positions.buffer).put(0);
+		((FloatBuffer) positions.buffer).put(0f);
+		((FloatBuffer) positions.buffer).put(0f);
+		((FloatBuffer) positions.buffer).put(1f);
 		positions.buffer.flip();
 		
 		ArrayList<Attribute> aList= new ArrayList<Attribute>();
@@ -54,8 +49,8 @@ public class Model {
 		Geometry cubeMesh = new Geometry(indices, aList);
 		
 		Set<Shader> shaders = new HashSet<Shader>();
-		shaders.add(new Shader(Shader.Type.VERTEX, "#version 120\nvoid main()\n{\ngl_Position = vec4(0.0,0.0,0.0,1.0);\n}\n"));
-		shaders.add(new Shader(Shader.Type.FRAGMENT, "#version 120\nvoid main()\n{\ngl_FragColor = vec4(1.0,0.0,0.0,1.0);\n}\n"));
+		shaders.add(new Shader(Shader.Type.VERTEX, "#version 120\nuniform mat4 transformMatrix;\nattribute vec4 pos;\nvarying vec4 col;\nvoid main()\n{\ncol= transformMatrix * pos;\ngl_Position = vec4(pos,1.0);\n}\n"));
+		shaders.add(new Shader(Shader.Type.FRAGMENT, "#version 120\nvarying vec4 col;\nvoid main()\n{\ngl_FragColor = vec4(col);\n}\n"));
 		ShaderProgram shaderProgram = new ShaderProgram(shaders);
 		Material defaultMaterial = new Material(shaderProgram);
 		
