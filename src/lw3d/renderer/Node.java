@@ -8,7 +8,7 @@ import lw3d.math.Vector3f;
 
 public class Node {
 	private Node parent = null;
-	private Set<Node> children = new HashSet();
+	private Set<Node> children = new HashSet<Node>();
 
 	private Vector3f position;
 

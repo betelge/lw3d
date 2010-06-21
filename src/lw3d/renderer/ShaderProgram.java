@@ -3,7 +3,6 @@ package lw3d.renderer;
 import java.util.Set;
 
 import org.lwjgl.opengl.ARBFragmentShader;
-import org.lwjgl.opengl.ARBVertexProgram;
 import org.lwjgl.opengl.ARBVertexShader;
 
 public class ShaderProgram {

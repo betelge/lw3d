@@ -27,11 +27,12 @@ public class Renderer {
 	MaterialManager materialManager;
 
 	// TODO: Create matrix class
-	FloatBuffer transformMatrixBuffer;
+	FloatBuffer modelViewMatrix;
+	FloatBuffer perspectiveMatrix;
 
 	Set<GeometryNode> renderNodes = new HashSet<GeometryNode>();
 
-	public Renderer() {
+	public Renderer(float fov, float zNear, float zFar) {
 		// Create the display.
 		try {
 			Display.create();
@@ -68,11 +69,38 @@ public class Renderer {
 		geometryManager = new GeometryManager();
 		materialManager = new MaterialManager();
 
-		transformMatrixBuffer = BufferUtils.createFloatBuffer(16);
+		// Initialize model-view matrix
+		modelViewMatrix = BufferUtils.createFloatBuffer(16);
 		for(int i = 0; i < 16; i++) {
-			transformMatrixBuffer.put((float)i / 160f);
+			modelViewMatrix.put((float)i / 160f);
 		}
-		transformMatrixBuffer.flip();
+		modelViewMatrix.flip();
+		
+		// Initialize perspecitve matrix
+		perspectiveMatrix = BufferUtils.createFloatBuffer(16);
+		float h = 1f/(float)Math.tan(fov*(float)Math.PI/360f);
+		float aspect = Display.getDisplayMode().getWidth()/(float)Display.getDisplayMode().getHeight();
+		perspectiveMatrix.put(h/aspect);
+		perspectiveMatrix.put(0f);
+		perspectiveMatrix.put(0f);
+		perspectiveMatrix.put(0f);
+		
+		perspectiveMatrix.put(0f);
+		perspectiveMatrix.put(h);
+		perspectiveMatrix.put(0f);
+		perspectiveMatrix.put(0f);
+		
+		perspectiveMatrix.put(0f);
+		perspectiveMatrix.put(0f);
+		perspectiveMatrix.put((zNear+zFar)/(zNear-zFar));
+		perspectiveMatrix.put(-1f);
+		
+		perspectiveMatrix.put(0f);
+		perspectiveMatrix.put(0f);
+		perspectiveMatrix.put(2f*(zNear*zFar)/(zNear-zFar));
+		perspectiveMatrix.put(0f);
+
+		perspectiveMatrix.flip();
 	}
 
 	// TODO: Change argument to RenderPass(Node, FBO)
@@ -81,7 +109,7 @@ public class Renderer {
 
 		ProcessNode(rootNode, cameraNode.getPosition().mult(-1f));
 
-		// Current objects. Used for performence.
+		// Current objects. Used for performance.
 		Geometry currentGeometry = null;
 		int currentVAOhandle = -1;
 		GeometryInfo geometryInfo = null;
@@ -113,11 +141,32 @@ public class Renderer {
 			ARBShaderObjects.glUseProgramObjectARB(shaderProgram);
 
 			// TODO: Set transformation uniform(s)
+			modelViewMatrix.clear();
+			modelViewMatrix.put(1f);
+			modelViewMatrix.put(0f);
+			modelViewMatrix.put(0f);
+			modelViewMatrix.put(position.x);
+			modelViewMatrix.put(0f);
+			modelViewMatrix.put(1f);
+			modelViewMatrix.put(0f);
+			modelViewMatrix.put(position.y);
+			modelViewMatrix.put(0f);
+			modelViewMatrix.put(0f);
+			modelViewMatrix.put(1f);
+			modelViewMatrix.put(position.z);
+			modelViewMatrix.put(0f);
+			modelViewMatrix.put(0f);
+			modelViewMatrix.put(0f);
+			modelViewMatrix.put(1);
+			modelViewMatrix.flip();
 			int matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
 					shaderProgram, "transformMatrix");
-			System.out.println("transformationMAtrix location: " + matrixLocation);
+			ARBShaderObjects.glUniformMatrix4ARB(matrixLocation, true,
+					modelViewMatrix);
+			matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
+					shaderProgram, "perspectiveMatrix");
 			ARBShaderObjects.glUniformMatrix4ARB(matrixLocation, false,
-					transformMatrixBuffer);
+					perspectiveMatrix);
 
 			// Bind vertex attribute names
 			ListIterator<Geometry.Attribute> lit = geometry.attributes

@@ -6,10 +6,7 @@ import java.util.Map;
 
 import lw3d.renderer.ShaderProgram.Shader;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBShaderObjects;
-import org.lwjgl.opengl.ARBVertexShader;
-import org.lwjgl.opengl.GL11;
 
 public class MaterialManager {
 	
