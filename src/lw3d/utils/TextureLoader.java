@@ -14,20 +14,20 @@ import lw3d.renderer.Texture;
 
 public class TextureLoader {
 
-	public Texture loadTexture(File file) throws IOException {
+	static public Texture loadTexture(File file) throws IOException {
 		BufferedImage image = ImageIO.read(file);
 		DataBuffer data = image.getData().getDataBuffer();
 
 		int dataSize = data.getSize();
 
-		ByteBuffer buffer = BufferUtils.createByteBuffer(dataSize);
+		ByteBuffer buffer = BufferUtils.createByteBuffer( 4 * dataSize );
 		for (int i = 0; i < dataSize; i++)
-			buffer.putInt(data.getElem(i));
+			buffer.put((byte) data.getElem(i));
 		buffer.flip();
 
 		Texture texture = new Texture(buffer, Texture.TextureType.TEXTURE_2D,
-				image.getWidth(), image.getHeight(), Texture.TexelType.UINT,
-				Texture.Format.GL_RGBA8, Texture.Filter.LINEAR_MIPMAP_NEAREST,
+				image.getWidth(), image.getHeight(), Texture.TexelType.UBYTE,
+				Texture.Format.GL_RGB8, Texture.Filter.LINEAR_MIPMAP_NEAREST,
 				Texture.WrapMode.REPEAT);
 
 		return texture;
