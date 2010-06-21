@@ -17,6 +17,8 @@ import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
 
 public class Renderer {
@@ -24,7 +26,8 @@ public class Renderer {
 	ContextCapabilities capabilities;
 
 	GeometryManager geometryManager;
-	MaterialManager materialManager;
+	ShaderManager shaderManager;
+	TextureManager textureManager;
 
 	// TODO: Create matrix class
 	FloatBuffer modelViewMatrix;
@@ -67,37 +70,39 @@ public class Renderer {
 			System.out.println("OpenGL11");
 
 		geometryManager = new GeometryManager();
-		materialManager = new MaterialManager();
+		shaderManager = new ShaderManager();
+		textureManager = new TextureManager();
 
 		// Initialize model-view matrix
 		modelViewMatrix = BufferUtils.createFloatBuffer(16);
-		for(int i = 0; i < 16; i++) {
-			modelViewMatrix.put((float)i / 160f);
+		for (int i = 0; i < 16; i++) {
+			modelViewMatrix.put((float) i / 160f);
 		}
 		modelViewMatrix.flip();
-		
+
 		// Initialize perspecitve matrix
 		perspectiveMatrix = BufferUtils.createFloatBuffer(16);
-		float h = 1f/(float)Math.tan(fov*(float)Math.PI/360f);
-		float aspect = Display.getDisplayMode().getWidth()/(float)Display.getDisplayMode().getHeight();
-		perspectiveMatrix.put(h/aspect);
+		float h = 1f / (float) Math.tan(fov * (float) Math.PI / 360f);
+		float aspect = Display.getDisplayMode().getWidth()
+				/ (float) Display.getDisplayMode().getHeight();
+		perspectiveMatrix.put(h / aspect);
 		perspectiveMatrix.put(0f);
 		perspectiveMatrix.put(0f);
 		perspectiveMatrix.put(0f);
-		
+
 		perspectiveMatrix.put(0f);
 		perspectiveMatrix.put(h);
 		perspectiveMatrix.put(0f);
 		perspectiveMatrix.put(0f);
-		
+
 		perspectiveMatrix.put(0f);
 		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put((zNear+zFar)/(zNear-zFar));
+		perspectiveMatrix.put((zNear + zFar) / (zNear - zFar));
 		perspectiveMatrix.put(-1f);
-		
+
 		perspectiveMatrix.put(0f);
 		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put(2f*(zNear*zFar)/(zNear-zFar));
+		perspectiveMatrix.put(2f * (zNear * zFar) / (zNear - zFar));
 		perspectiveMatrix.put(0f);
 
 		perspectiveMatrix.flip();
@@ -135,10 +140,76 @@ public class Renderer {
 				}
 			}
 
-			// TODO: Set meterial ( shader, uniforms )
-			int shaderProgram = materialManager
-					.getShaderProgramHandle(geometryNode.getMaterial().shaderProgram);
+			// Set shader
+			int shaderProgram = shaderManager
+					.getShaderProgramHandle(geometryNode.getMaterial()
+							.getShaderProgram());
 			ARBShaderObjects.glUseProgramObjectARB(shaderProgram);
+
+			// Bind textures
+			Texture[] textures = geometryNode.getMaterial().getTextures();
+			if (textures != null) {
+
+				for (int i = 0; i < textures.length; i++) {
+					int textureLocation = ARBShaderObjects
+							.glGetUniformLocationARB(shaderProgram, textures[i]
+									.getName());
+					GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
+					GL11.glBindTexture(textures[i].getTextureType().getValue(),
+							textureManager.getTextureHandle(textures[i]));
+					ARBShaderObjects.glUniform1iARB(textureLocation, i);
+				}
+			}
+
+			// Upload uniforms
+			// TODO: check for changes instead?
+			Uniform[] uniforms = geometryNode.getMaterial().getUniforms();
+			if (uniforms != null) {
+				for (int i = 0; i < uniforms.length; i++) {
+					int uniformLocation = ARBShaderObjects
+							.glGetUniformLocationARB(shaderProgram, uniforms[i]
+									.getName());
+					float[] floats = uniforms[i].getFloats();
+					switch (uniforms[i].getType()) {
+					case FLOAT:
+						ARBShaderObjects.glUniform1fARB(uniformLocation,
+								floats[0]);
+						break;
+					case FLOAT2:
+						ARBShaderObjects.glUniform2fARB(uniformLocation,
+								floats[0], floats[1]);
+						break;
+					case FLOAT3:
+						ARBShaderObjects.glUniform3fARB(uniformLocation,
+								floats[0], floats[1], floats[2]);
+						break;
+					case FLOAT4:
+						ARBShaderObjects.glUniform4fARB(uniformLocation,
+								floats[0], floats[1], floats[2], floats[3]);
+						break;
+					case INT:
+						ARBShaderObjects.glUniform1iARB(uniformLocation,
+								(int) floats[0]);
+						break;
+					case INT2:
+						ARBShaderObjects.glUniform2iARB(uniformLocation,
+								(int) floats[0], (int) floats[1]);
+						break;
+					case INT3:
+						ARBShaderObjects.glUniform3iARB(uniformLocation,
+								(int) floats[0], (int) floats[1],
+								(int) floats[2]);
+						break;
+					case INT4:
+						ARBShaderObjects.glUniform4iARB(uniformLocation,
+								(int) floats[0], (int) floats[1],
+								(int) floats[2], (int) floats[3]);
+						break;
+					default:
+						break;
+					}
+				}
+			}
 
 			// TODO: Set transformation uniform(s)
 			modelViewMatrix.clear();

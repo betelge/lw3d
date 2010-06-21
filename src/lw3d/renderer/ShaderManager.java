@@ -8,7 +8,7 @@ import lw3d.renderer.ShaderProgram.Shader;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 
-public class MaterialManager {
+public class ShaderManager {
 	
 	Map<ShaderProgram, Integer> shaderProgramHandles = new HashMap<ShaderProgram, Integer>();
 	
