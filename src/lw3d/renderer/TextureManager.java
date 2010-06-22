@@ -24,9 +24,10 @@ public class TextureManager {
 		// Create a texture object
 		int textureHandle = GL11.glGenTextures();
 		GL11.glBindTexture(texture.getTextureType().getValue(), textureHandle);
-		
+
 		// Turn on mipmap generation
-		GL11.glTexParameteri(texture.getTextureType().getValue(), GL14.GL_GENERATE_MIPMAP, GL11.GL_TRUE);
+		GL11.glTexParameteri(texture.getTextureType().getValue(),
+				GL14.GL_GENERATE_MIPMAP, GL11.GL_TRUE);
 
 		// Upload data
 		switch (texture.getTextureType()) {
@@ -52,16 +53,16 @@ public class TextureManager {
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
 				GL11.GL_TEXTURE_MIN_FILTER, texture.getFilter().getValue());
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
-				GL11.GL_TEXTURE_MIN_FILTER, texture.getFilter().getValue());
+				GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR); // TODO: <- hardcoded linear
 
 		// Set both wrap modes
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
 				GL11.GL_TEXTURE_WRAP_S, texture.getWrapMode().getValue());
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
 				GL11.GL_TEXTURE_WRAP_T, texture.getWrapMode().getValue());
-		
+
 		textureHandles.put(texture, textureHandle);
-		
+
 		return true;
 	}
 

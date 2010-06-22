@@ -1,11 +1,14 @@
 package lw3d.renderer;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 import java.util.HashSet;
 
+import lw3d.math.Transform;
 import lw3d.math.Vector3f;
 import lw3d.renderer.GeometryManager.GeometryInfo;
 
@@ -33,7 +36,8 @@ public class Renderer {
 	FloatBuffer modelViewMatrix;
 	FloatBuffer perspectiveMatrix;
 
-	Set<GeometryNode> renderNodes = new HashSet<GeometryNode>();
+	List<GeometryNode> renderNodes = new ArrayList<GeometryNode>();
+	List<Transform> renderTransforms = new ArrayList<Transform>();
 
 	public Renderer(float fov, float zNear, float zFar) {
 		// Create the display.
@@ -112,7 +116,7 @@ public class Renderer {
 	public void render(Node rootNode, CameraNode cameraNode) {
 		renderNodes.clear();
 
-		ProcessNode(rootNode, cameraNode.getPosition().mult(-1f));
+		ProcessNode(rootNode, cameraNode.getTransform().invert());
 
 		// Current objects. Used for performance.
 		Geometry currentGeometry = null;
@@ -120,12 +124,10 @@ public class Renderer {
 		GeometryInfo geometryInfo = null;
 
 		Iterator<GeometryNode> it = renderNodes.iterator();
-		while (it.hasNext()) {
+		Iterator<Transform> tit = renderTransforms.iterator();
+		while (it.hasNext() && tit.hasNext()) {
 			GeometryNode geometryNode = it.next();
-			// TODO: position -> transform
-			// TODO: absolutePosition -> get transform from array made by
-			// ProcessNode
-			Vector3f position = geometryNode.getAbsolutePosition();
+			Transform transform = tit.next();
 
 			Geometry geometry = geometryNode.getGeometry();
 
@@ -211,24 +213,8 @@ public class Renderer {
 				}
 			}
 
-			// TODO: Set transformation uniform(s)
 			modelViewMatrix.clear();
-			modelViewMatrix.put(1f);
-			modelViewMatrix.put(0f);
-			modelViewMatrix.put(0f);
-			modelViewMatrix.put(position.x);
-			modelViewMatrix.put(0f);
-			modelViewMatrix.put(1f);
-			modelViewMatrix.put(0f);
-			modelViewMatrix.put(position.y);
-			modelViewMatrix.put(0f);
-			modelViewMatrix.put(0f);
-			modelViewMatrix.put(1f);
-			modelViewMatrix.put(position.z);
-			modelViewMatrix.put(0f);
-			modelViewMatrix.put(0f);
-			modelViewMatrix.put(0f);
-			modelViewMatrix.put(1);
+			modelViewMatrix.put(transform.toMatrix4());
 			modelViewMatrix.flip();
 			int matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
 					shaderProgram, "transformMatrix");
@@ -253,17 +239,18 @@ public class Renderer {
 		}
 	}
 
-	private void ProcessNode(Node node, Vector3f position) {
+	private void ProcessNode(Node node, Transform transform) {
 
-		Vector3f currentPosition = position.add(node.getPosition());
+		Transform currentTransform = transform.mult(node.getTransform());
 
 		if (node instanceof GeometryNode) {
 			renderNodes.add((GeometryNode) node);
+			renderTransforms.add(currentTransform);
 		}
 
 		Iterator<Node> it = node.getChildren().iterator();
 		while (it.hasNext()) {
-			ProcessNode(it.next(), currentPosition);
+			ProcessNode(it.next(), currentTransform);
 		}
 	}
 }

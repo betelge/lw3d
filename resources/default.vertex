@@ -1,0 +1,16 @@
+#version 120
+
+uniform mat4 transformMatrix;
+uniform mat4 perspectiveMatrix;
+
+attribute vec4 position;
+attribute vec2 textureCoord;
+attribute vec4 normal;
+
+varying vec4 col;
+
+void main()
+{
+	col = position;
+	gl_Position = perspectiveMatrix * transformMatrix * position;
+}

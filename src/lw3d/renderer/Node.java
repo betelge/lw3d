@@ -3,32 +3,31 @@ package lw3d.renderer;
 import java.util.HashSet;
 import java.util.Set;
 
-import lw3d.math.Vector3f;
-
+import lw3d.math.Transform;
 
 public class Node {
 	private Node parent = null;
 	private Set<Node> children = new HashSet<Node>();
 
-	private Vector3f position;
+	private Transform transform;
 
 	public Node() {
-		this(new Vector3f());
+		this(new Transform());
 	}
 
-	public Node(Vector3f position) {
-		this.position = position;
+	public Node(Transform transform) {
+		this.transform = transform;
 	}
 
-	public Vector3f getPosition() {
-		return position;
+	public Transform getTransform() {
+		return transform;
 	}
 	
-	public Vector3f getAbsolutePosition(){
+	public Transform getAbsoluteTransform(){
 		if(parent != null)
-			return position.add(parent.getAbsolutePosition());
+			return transform.mult(parent.getAbsoluteTransform());
 		else
-			return position;
+			return transform;
 	}
 
 	public void attach(Node node) {
