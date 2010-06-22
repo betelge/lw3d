@@ -42,7 +42,7 @@ public class GeometryManager {
 			TRIANGLES(GL11.GL_TRIANGLES), QUADS(GL11.GL_QUADS); // ...
 		}*/
 
-		// Set<Attribute> attributes = new HashSet<Attribute>();
+		public String[] attributeNames;
 	}
 
 	Map<Geometry, GeometryInfo> geometryInfos = new HashMap<Geometry, GeometryInfo>();
@@ -129,27 +129,19 @@ public class GeometryManager {
 
 			// Set and update the index VBO offset
 			geometryInfo.indexOffset = indexOffset;
-			indexOffset += geometry.getIndices().capacity() * 4;
+			indexOffset += geometry.getIndices().capacity();
 			
 			geometryInfo.count = geometry.getIndices().capacity();
 
+			geometryInfo.attributeNames = new String[geometry.getAttributes().size()];
+			
 			// Iterate through the attributes
 			Iterator<Geometry.Attribute> it = geometry.getAttributes()
 					.iterator();
-
-			// Set<Attribute> attributes = new HashSet<Attribute>();
-
 			int i = 0;
 			Geometry.Attribute geometryAttribute;
 			while (it.hasNext()) {
 				geometryAttribute = it.next();
-				/*
-				 * Attribute attribute = new Attribute(); attribute.name =
-				 * geometryAttribute.name; attribute.normalized =
-				 * geometryAttribute.normalized; attribute.type =
-				 * geometryAttribute.type; attribute.size =
-				 * geometryAttribute.size;
-				 */
 
 				// Upload attribute data to the data VBO
 				switch (geometryAttribute.type) {
@@ -170,17 +162,14 @@ public class GeometryManager {
 				ARBVertexShader.glVertexAttribPointerARB(i,
 						geometryAttribute.size, geometryAttribute.type
 								.getType(), geometryAttribute.normalized, 0,
-						dataOffset);				
+						dataOffset);
+				
+				geometryInfo.attributeNames[i] = geometryAttribute.name;
+				
 				i++;
 
-				/*
-				 * attribute.offset = dataOffset; attribute.stride = 0;
-				 * 
-				 * attributes.add(attribute);
-				 */
-
 				// Update the data VBO offset
-				dataOffset += geometry.getIndices().capacity() * 4;
+				dataOffset += geometryAttribute.buffer.capacity() * 4;
 
 			}
 
@@ -188,7 +177,6 @@ public class GeometryManager {
 			
 			// Unbind the VAO
 			ARBVertexArrayObject.glBindVertexArray(0);
-			
 
 			return true;
 		}

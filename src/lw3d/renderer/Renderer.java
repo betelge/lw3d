@@ -4,23 +4,17 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
-import java.util.HashSet;
 
 import lw3d.math.Transform;
-import lw3d.math.Vector3f;
 import lw3d.renderer.GeometryManager.GeometryInfo;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
 
@@ -32,22 +26,15 @@ public class Renderer {
 	ShaderManager shaderManager;
 	TextureManager textureManager;
 
-	// TODO: Create matrix class
+	// TODO: Create matrix class?
 	FloatBuffer modelViewMatrix;
 	FloatBuffer perspectiveMatrix;
+	FloatBuffer normalMatrix;
 
 	List<GeometryNode> renderNodes = new ArrayList<GeometryNode>();
 	List<Transform> renderTransforms = new ArrayList<Transform>();
 
 	public Renderer(float fov, float zNear, float zFar) {
-		// Create the display.
-		try {
-			Display.create();
-		} catch (LWJGLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		capabilities = GLContext.getCapabilities();
 
 		// TODO: Optionally set (core) profile
@@ -79,10 +66,9 @@ public class Renderer {
 
 		// Initialize model-view matrix
 		modelViewMatrix = BufferUtils.createFloatBuffer(16);
-		for (int i = 0; i < 16; i++) {
-			modelViewMatrix.put((float) i / 160f);
-		}
-		modelViewMatrix.flip();
+		
+		// Initialize normal matrix
+		normalMatrix = BufferUtils.createFloatBuffer(9);
 
 		// Initialize perspecitve matrix
 		perspectiveMatrix = BufferUtils.createFloatBuffer(16);
@@ -115,6 +101,7 @@ public class Renderer {
 	// TODO: Change argument to RenderPass(Node, FBO)
 	public void render(Node rootNode, CameraNode cameraNode) {
 		renderNodes.clear();
+		renderTransforms.clear();
 
 		ProcessNode(rootNode, cameraNode.getTransform().invert());
 
@@ -122,6 +109,13 @@ public class Renderer {
 		Geometry currentGeometry = null;
 		int currentVAOhandle = -1;
 		GeometryInfo geometryInfo = null;
+		
+		// Clear color and depth buffers
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+		
+		// Enable depth test
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
 
 		Iterator<GeometryNode> it = renderNodes.iterator();
 		Iterator<Transform> tit = renderTransforms.iterator();
@@ -217,21 +211,25 @@ public class Renderer {
 			modelViewMatrix.put(transform.toMatrix4());
 			modelViewMatrix.flip();
 			int matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
-					shaderProgram, "transformMatrix");
+					shaderProgram, "modelViewMatrix");
 			ARBShaderObjects.glUniformMatrix4ARB(matrixLocation, true,
 					modelViewMatrix);
 			matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
 					shaderProgram, "perspectiveMatrix");
 			ARBShaderObjects.glUniformMatrix4ARB(matrixLocation, false,
 					perspectiveMatrix);
+			normalMatrix.clear();
+			normalMatrix.put(transform.getRotation().toMatrix3());
+			normalMatrix.flip();
+			matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
+					shaderProgram, "normalMatrix");
+			ARBShaderObjects.glUniformMatrix3ARB(matrixLocation, false,
+					normalMatrix);
 
-			// Bind vertex attribute names
-			ListIterator<Geometry.Attribute> lit = geometry.attributes
-					.listIterator();
-			int i = 0;
-			while (lit.hasNext()) {
-				ARBVertexShader.glBindAttribLocationARB(shaderProgram, i, lit
-						.next().name);
+			// Bind vertex attributes to uniform names
+			for(int i = 0; i < geometryInfo.attributeNames.length; i++) {
+				ARBVertexShader.glBindAttribLocationARB(shaderProgram, i,
+						geometryInfo.attributeNames[i]);
 			}
 
 			GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,

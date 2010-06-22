@@ -27,45 +27,14 @@ import lw3d.utils.TextureLoader;
 public class Model {
 	Node rootNode = new Node();
 	CameraNode cameraNode = new CameraNode();
+	
+	public boolean vsync = true;
+	
+	public GeometryNode cube;
 
 	public Model() {
-		/*IntBuffer indices = BufferUtils.createIntBuffer(6);
-		for (int i = 0; i < 6; i++)
-			indices.put(i);
-		indices.flip();
 
-		Attribute positions = new Attribute();
-		positions.name = "position";
-		positions.type = Geometry.Type.FLOAT;
-		positions.size = 3;
-		positions.buffer = BufferUtils.createFloatBuffer(4 * 6 * 3);
-		((FloatBuffer) positions.buffer).put(-1f);
-		((FloatBuffer) positions.buffer).put(1f);
-		((FloatBuffer) positions.buffer).put(0f);
-		((FloatBuffer) positions.buffer).put(1f);
-		((FloatBuffer) positions.buffer).put(1f);
-		((FloatBuffer) positions.buffer).put(0f);
-		((FloatBuffer) positions.buffer).put(0f);
-		((FloatBuffer) positions.buffer).put(0f);
-		((FloatBuffer) positions.buffer).put(0f);
-
-		((FloatBuffer) positions.buffer).put(0f);
-		((FloatBuffer) positions.buffer).put(0f);
-		((FloatBuffer) positions.buffer).put(0f);
-		((FloatBuffer) positions.buffer).put(1f);
-		((FloatBuffer) positions.buffer).put(1f);
-		((FloatBuffer) positions.buffer).put(0);
-		((FloatBuffer) positions.buffer).put(1f);
-		((FloatBuffer) positions.buffer).put(-1f);
-		((FloatBuffer) positions.buffer).put(0f);
-		positions.buffer.flip();
-
-		ArrayList<Attribute> aList = new ArrayList<Attribute>();
-		aList.add(positions);
-
-		Geometry cubeMesh = new Geometry(indices, aList);*/
-		
-		Geometry cubeMesh = GeometryLoader.loadObj(new File("resources/cube.obj"));
+		Geometry cubeMesh = GeometryLoader.loadObj(new File("resources/untitled.obj"));
 
 		Set<Shader> shaders = new HashSet<Shader>();
 		try {
@@ -86,7 +55,7 @@ public class Model {
 		ShaderProgram shaderProgram = new ShaderProgram(shaders);
 		Material defaultMaterial = new Material(shaderProgram);
 
-		GeometryNode cube = new GeometryNode(cubeMesh, defaultMaterial);
+		cube = new GeometryNode(cubeMesh, defaultMaterial);
 		Uniform[] uniforms = new Uniform[1];
 		uniforms[0] = new Uniform("col2", 0f, 1f, 0f, 1f);
 		defaultMaterial.setUniforms(uniforms);
@@ -103,6 +72,8 @@ public class Model {
 
 		rootNode.attach(cube);
 		cube.getTransform().getPosition().z = -5f;
+		cube.getTransform().getPosition().x = 1f;
+		cube.getTransform().getPosition().y = -1f;
 	}
 
 	public Node getRootNode() {

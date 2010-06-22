@@ -1,16 +1,22 @@
 #version 120
 
-uniform mat4 transformMatrix;
+uniform mat4 modelViewMatrix;
 uniform mat4 perspectiveMatrix;
+uniform mat3 normalMatrix;
 
-attribute vec4 position;
+
+attribute vec3 position;
 attribute vec2 textureCoord;
-attribute vec4 normal;
+attribute vec3 normal;
 
+varying vec2 tc;
+varying vec3 N;
 varying vec4 col;
 
 void main()
 {
-	col = position;
-	gl_Position = perspectiveMatrix * transformMatrix * position;
+	col = vec4(normal, 1.0);
+	N = normalMatrix * normal;
+	tc = textureCoord;
+	gl_Position = perspectiveMatrix * modelViewMatrix * vec4(position, 2.0);
 }
