@@ -1,11 +1,17 @@
-package lw3d.renderer;
+package lw3d.renderer.managers;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+import lw3d.renderer.Geometry;
+import lw3d.renderer.Geometry.Attribute;
+import lw3d.renderer.Geometry.Type;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexArrayObject;
@@ -14,20 +20,12 @@ import org.lwjgl.opengl.ARBVertexShader;
 
 public class GeometryManager {
 
-	/*
-	 * TODO: Use VAOs!
-	 */
-
 	private int indexVBOHandle;
 	private int dataVBOHandle;
 	private int indexOffset = 0;
 	private int dataOffset = 0;
-
-	/*
-	 * public class Attribute { public String name; int size; public
-	 * Geometry.Type type; public boolean normalized; public int stride; public
-	 * int offset; }
-	 */
+	
+	static public Geometry QUAD;
 
 	public class GeometryInfo {
 		// VAO handle
@@ -65,6 +63,36 @@ public class GeometryManager {
 		ARBVertexBufferObject.glBufferDataARB(
 				ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 4 * 1024 * 1024,
 				ARBVertexBufferObject.GL_STATIC_DRAW_ARB);
+		
+		// Initialize the QUAD
+		IntBuffer indices = BufferUtils.createIntBuffer(4);
+		for(int i = 0; i < 4; i++)
+			indices.put(i);
+		indices.flip();
+		Geometry.Attribute at = new Geometry.Attribute();
+		at.name = "position";
+		at.size = 3;
+		at.type = Geometry.Type.FLOAT;
+		at.buffer = BufferUtils.createFloatBuffer(3*4);
+		((FloatBuffer) at.buffer).put(-1);
+		((FloatBuffer) at.buffer).put(-1);
+		((FloatBuffer) at.buffer).put(0);
+		
+		((FloatBuffer) at.buffer).put(1);
+		((FloatBuffer) at.buffer).put(-1);
+		((FloatBuffer) at.buffer).put(0);
+		
+		((FloatBuffer) at.buffer).put(1);
+		((FloatBuffer) at.buffer).put(1);
+		((FloatBuffer) at.buffer).put(0);
+		
+		((FloatBuffer) at.buffer).put(-1);
+		((FloatBuffer) at.buffer).put(1);
+		((FloatBuffer) at.buffer).put(0);
+		at.buffer.flip();
+		List<Geometry.Attribute> lat = new ArrayList<Geometry.Attribute>();
+		lat.add(at);
+		QUAD = new Geometry(indices, lat);
 	}
 
 	@Override

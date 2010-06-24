@@ -6,27 +6,41 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.Display;
 
 import lw3d.renderer.CameraNode;
+import lw3d.renderer.FBO;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.GeometryNode;
 import lw3d.renderer.Material;
 import lw3d.renderer.Node;
+import lw3d.renderer.RenderBuffer;
 import lw3d.renderer.ShaderProgram;
 import lw3d.renderer.Texture;
 import lw3d.renderer.Uniform;
+import lw3d.renderer.FBOAttachable.Format;
 import lw3d.renderer.Geometry.Attribute;
 import lw3d.renderer.ShaderProgram.Shader;
+import lw3d.renderer.Texture.Filter;
+import lw3d.renderer.Texture.TexelType;
+import lw3d.renderer.Texture.TextureType;
+import lw3d.renderer.Texture.WrapMode;
+import lw3d.renderer.managers.FBOManager;
+import lw3d.renderer.passes.BloomPass;
+import lw3d.renderer.passes.QuadRenderPass;
+import lw3d.renderer.passes.RenderPass;
+import lw3d.renderer.passes.SceneRenderPass;
 import lw3d.utils.GeometryLoader;
 import lw3d.utils.StringLoader;
 import lw3d.utils.TextureLoader;
 
 public class Model {
-	Node rootNode = new Node();
-	CameraNode cameraNode = new CameraNode();
+	
+	private List<RenderPass> renderPasses = new ArrayList<RenderPass>();
 	
 	public boolean vsync = true;
 	
@@ -37,6 +51,8 @@ public class Model {
 		Geometry cubeMesh = GeometryLoader.loadObj(new File("resources/untitled.obj"));
 
 		Set<Shader> shaders = new HashSet<Shader>();
+		Set<Shader> fboShaders = new HashSet<Shader>();
+		
 		try {
 			shaders
 					.add(new Shader(
@@ -47,48 +63,69 @@ public class Model {
 					.add(new Shader(
 							Shader.Type.FRAGMENT,
 							StringLoader.loadString(new File("resources/default.fragment"))));
+			
+			fboShaders
+				.add(new Shader(
+					Shader.Type.VERTEX,
+					StringLoader.loadString(new File("resources/direct.vertex"))));
+			fboShaders
+				.add(new Shader(
+					Shader.Type.FRAGMENT,
+					StringLoader.loadString(new File("resources/direct.fragment"))));
+
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
 		ShaderProgram shaderProgram = new ShaderProgram(shaders);
+		ShaderProgram fboShaderProgram = new ShaderProgram(fboShaders);
 		Material defaultMaterial = new Material(shaderProgram);
+		Material fboMaterial = new Material(fboShaderProgram);
 
 		cube = new GeometryNode(cubeMesh, defaultMaterial);
 		Uniform[] uniforms = new Uniform[1];
 		uniforms[0] = new Uniform("col2", 0f, 1f, 0f, 1f);
 		defaultMaterial.setUniforms(uniforms);
 		
-		Texture[] textures = new Texture[1];
+		Texture texture = null;
 		try {
-			textures[0] = TextureLoader.loadTexture(new File("resources/test.png"));
+			texture = TextureLoader.loadTexture(new File("resources/test.png"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		textures[0].setName("texture0");
-		defaultMaterial.setTextures(textures);
+		
+		// FBO texture
+		Texture fboTexture = new Texture(null, TextureType.TEXTURE_2D,
+				Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight(),
+				TexelType.UINT, Format.GL_RGBA8, Filter.LINEAR_MIPMAP_NEAREST, WrapMode.CLAMP);
+		
+		RenderBuffer depthBuffer = new RenderBuffer(Format.GL_DEPTH_COMPONENT,
+				Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
+		
+		FBO myFBO = new FBO(fboTexture, depthBuffer,
+				Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
+		
+		defaultMaterial.addTexture("texture0", texture);
+		fboMaterial.addTexture("source", fboTexture);
+		
+		Node rootNode = new Node();
+		CameraNode cameraNode = new CameraNode();
+		
+		// Create render passes
+		renderPasses.add(new SceneRenderPass(rootNode, cameraNode, myFBO));
+		//renderPasses.add(new QuadRenderPass(fboMaterial));
+		renderPasses.add(new BloomPass(fboMaterial.getTextures().get("source")));
+		
 
 		rootNode.attach(cube);
 		cube.getTransform().getPosition().z = -5f;
-		cube.getTransform().getPosition().x = 1f;
-		cube.getTransform().getPosition().y = -1f;
+		/*cube.getTransform().getPosition().x = 1f;
+		cube.getTransform().getPosition().y = -1f;*/
 	}
 
-	public Node getRootNode() {
-		return rootNode;
-	}
-
-	public void setRootNode(Node rootNode) {
-		this.rootNode = rootNode;
-	}
-
-	public CameraNode getCameraNode() {
-		return cameraNode;
-	}
-
-	public void setCameraNode(CameraNode cameraNode) {
-		this.cameraNode = cameraNode;
+	public List<RenderPass> getRenderPasses() {
+		return renderPasses;
 	}
 }

@@ -1,7 +1,9 @@
-package lw3d.renderer;
+package lw3d.renderer.managers;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import lw3d.renderer.Texture;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
@@ -26,6 +28,7 @@ public class TextureManager {
 		GL11.glBindTexture(texture.getTextureType().getValue(), textureHandle);
 
 		// Turn on mipmap generation
+		// TODO: deprecated?
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
 				GL14.GL_GENERATE_MIPMAP, GL11.GL_TRUE);
 

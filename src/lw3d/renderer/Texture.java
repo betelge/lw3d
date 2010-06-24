@@ -7,19 +7,15 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 
-public class Texture {
+public class Texture extends FBOAttachable{
 	
-	private String name;
-
 	private ByteBuffer textureData;
 	private final TextureType textureType;
 	private final TexelType texelType;
-	private final Format format;
 	private final Filter filter; // TODO: Separate filters?
 	private final WrapMode wrapMode; // TODO: Separate wrap modes?
 
-	private final int width;
-	private final int height;
+	// width and height are in the super class
 	private final int depth;
 
 	public enum TextureType {
@@ -53,38 +49,7 @@ public class Texture {
 		}
 	}
 
-	public enum Format {
-		GL_RGB8(GL11.GL_RGB, GL11.GL_RGB8, 3), GL_RGBA4(GL11.GL_RGBA,
-				GL11.GL_RGBA4, 2), GL_RGBA8(GL11.GL_RGBA, GL11.GL_RGBA8, 4), GL_RGBA16(
-				GL11.GL_RGBA, GL11.GL_RGBA16, 8), GL_RGB5_A1(GL11.GL_RGBA,
-				GL11.GL_RGB5_A1, 2), GL_RGBA32F(GL11.GL_RGBA,
-				ARBTextureFloat.GL_RGB32F_ARB, 16), GL_DEPTH_COMPONENT(0,
-				GL11.GL_DEPTH_COMPONENT, 2), GL_STENCIL_INDEX(0,
-				GL11.GL_STENCIL_INDEX, 1);
 
-		private int externalFormatValue;
-		private int internalFormatValue;
-		private int texelSizeValue;
-
-		private Format(int externalFormatValue, int internalFormatValue,
-				int texelSizeValue) {
-			this.internalFormatValue = internalFormatValue;
-			this.externalFormatValue = externalFormatValue;
-			this.texelSizeValue = texelSizeValue;
-		}
-
-		public int getExternalFormatValue() {
-			return externalFormatValue;
-		}
-
-		public int getInternalFormatValue() {
-			return internalFormatValue;
-		}
-
-		public int getTexelSizeValue() {
-			return texelSizeValue;
-		}
-	}
 
 	public enum Filter {
 		NEAREST(GL11.GL_NEAREST), LINEAR(GL11.GL_LINEAR), NEAREST_MIPMAP_NEAREST(
@@ -122,13 +87,11 @@ public class Texture {
 	public Texture(ByteBuffer textureData, TextureType textureType, int width,
 			int height, TexelType texelType, Format format, Filter filter,
 			WrapMode wrapMode) {
+		super(format, width, height);
 		this.textureData = textureData;
 		this.textureType = textureType;
-		this.width = width;
-		this.height = height;
 		this.depth = 1;
 		this.texelType = texelType;
-		this.format = format;
 		this.filter = filter;
 		this.wrapMode = wrapMode;
 	}
@@ -141,14 +104,6 @@ public class Texture {
 		return textureData;
 	}
 
-	public int getWidth() {
-		return width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
 	public int getDepth() {
 		return depth;
 	}
@@ -157,24 +112,12 @@ public class Texture {
 		return texelType;
 	}
 
-	public Format getFormat() {
-		return format;
-	}
-
 	public Filter getFilter() {
 		return filter;
 	}
 
 	public WrapMode getWrapMode() {
 		return wrapMode;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
 	}
 
 }

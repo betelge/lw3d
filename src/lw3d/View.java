@@ -1,8 +1,16 @@
 package lw3d;
 
+import java.util.Iterator;
+import java.util.List;
+
 import lw3d.math.Quaternion;
 import lw3d.math.Vector3f;
 import lw3d.renderer.Renderer;
+import lw3d.renderer.managers.FBOManager;
+import lw3d.renderer.passes.QuadRenderPass;
+import lw3d.renderer.passes.RenderMultiPass;
+import lw3d.renderer.passes.RenderPass;
+import lw3d.renderer.passes.SceneRenderPass;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -58,9 +66,8 @@ public class View {
 
 			while (state != State.CLOSING) {
 
-				synchronized (model.getRootNode()) {
-					renderer.render(model.getRootNode(), model.getCameraNode());
-				}
+				List<RenderPass> renderPasses = model.getRenderPasses();
+				processRenderPasses(renderPasses);
 
 				Display.update();
 				Thread.yield();
@@ -89,6 +96,30 @@ public class View {
 			Mouse.destroy();
 			Keyboard.destroy();
 			Display.destroy();
+		}
+
+		private void processRenderPasses(List<RenderPass> renderPasses) {
+			Iterator<RenderPass> it = renderPasses.iterator();
+			while(it.hasNext()) {
+				
+				RenderPass renderPass = it.next();
+				
+				if(renderPass instanceof SceneRenderPass)
+					synchronized (((SceneRenderPass) renderPass).getRootNode()) {
+					renderer.renderScene(
+							((SceneRenderPass) renderPass).getRootNode(),
+							((SceneRenderPass) renderPass).getCameraNode(),
+							renderPass.getFbo());
+				}
+				else if(renderPass instanceof QuadRenderPass) {
+					renderer.renderQuad(
+							((QuadRenderPass) renderPass).getMaterial(),
+							renderPass.getFbo());
+				}
+				else if(renderPass instanceof RenderMultiPass) {
+					processRenderPasses(((RenderMultiPass) renderPass).getRenderPasses());
+				}
+			}
 		}
 	};
 

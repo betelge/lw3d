@@ -1,9 +1,10 @@
-package lw3d.renderer;
+package lw3d.renderer.managers;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import lw3d.renderer.ShaderProgram;
 import lw3d.renderer.ShaderProgram.Shader;
 
 import org.lwjgl.opengl.ARBShaderObjects;

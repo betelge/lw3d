@@ -1,0 +1,12 @@
+#version 120
+
+uniform sampler2D source;
+uniform sampler2D source2;
+uniform float factor = 1.0;
+
+varying vec2 pos;
+
+void main()
+{
+	gl_FragColor = texture2D(source, pos) + factor * texture2D(source2, pos);
+}

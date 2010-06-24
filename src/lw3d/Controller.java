@@ -8,10 +8,12 @@ public class Controller {
 	private Model model;
 	private View view;
 
+	Thread inputThread;
 	private boolean running = true;
 	private Runnable inputRunnable = new Runnable() {
 		@Override
 		public void run() {
+			
 			while (running) {
 
 				while (Keyboard.next())
@@ -48,7 +50,7 @@ public class Controller {
 		this.model = model;
 		this.view = view;
 
-		Thread inputThread = new Thread(inputRunnable, "inputThread");
+		inputThread = new Thread(inputRunnable, "inputThread");
 		inputThread.start();
 	}
 
@@ -62,7 +64,8 @@ public class Controller {
 
 	protected void onMouseButton(int button, boolean buttonState,
 			int x, int y) {
-		
+		if(buttonState)
+			System.out.println("Click: (" + x + ", " + y + ")");
 	}
 
 	protected void onKey(int key, boolean keyState,
