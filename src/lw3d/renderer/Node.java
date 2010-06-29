@@ -23,11 +23,15 @@ public class Node {
 		return transform;
 	}
 	
+	public void setTransform(Transform transform) {
+		this.transform = transform;
+	}
+	
 	public Transform getAbsoluteTransform(){
 		if(parent != null)
-			return transform.mult(parent.getAbsoluteTransform());
+			return getTransform().mult(parent.getAbsoluteTransform());
 		else
-			return transform;
+			return getTransform();
 	}
 
 	public void attach(Node node) {

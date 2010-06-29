@@ -8,6 +8,5 @@ varying vec2 pos;
 void main()
 {
 	vec4 color  = texture2D(source, pos);
-	if(dot(color,color) < 4*clampValue) discard;
-	gl_FragColor = vec4(1.0);
+	gl_FragColor = vec4(step(4*clampValue, dot(color,color)));
 }

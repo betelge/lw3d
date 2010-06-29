@@ -24,6 +24,7 @@ import lw3d.utils.StringLoader;
 public class BloomPass extends RenderMultiPass {
 	final int width = 420;
 	final int height = 263;
+	final float mipmapLevel = 0f;
 	
 	final File vertexFile = new File("resources/direct.vertex");
 	final File bloomFragmentFile = new File("resources/bloom.fragment");
@@ -79,7 +80,8 @@ public class BloomPass extends RenderMultiPass {
 		for (int i = 0; i < textures.length; i++) {
 			textures[i] = new Texture(null, TextureType.TEXTURE_2D, width, height,
 					TexelType.UINT, Format.GL_RGB8,
-					Filter.LINEAR_MIPMAP_NEAREST, WrapMode.CLAMP_TO_BORDER);
+					Filter.LINEAR_MIPMAP_LINEAR, WrapMode.CLAMP_TO_BORDER);
+			textures[i].setMipmapLevel(mipmapLevel);
 		}
 
 		for (int i = 0; i < fbos.length; i++)
@@ -91,7 +93,8 @@ public class BloomPass extends RenderMultiPass {
 		
 		materials[0] = new Material(shaderProgram);
 		materials[1] = new Material(shaderProgram);
-		float offset = 1.2f;
+		
+		float offset = 1.2f * (float)Math.pow(2, mipmapLevel);
 		materials[0].addUniform(new Uniform("offset", offset/(width), 0f));
 		materials[1].addUniform(new Uniform("offset", 0f, offset/(height)));
 		
@@ -109,9 +112,6 @@ public class BloomPass extends RenderMultiPass {
 		// Draw from fb01 to fbo0 and do vertical blur.
 		materials[1].addTexture("source", textures[1]);
 		renderPasses.add(new QuadRenderPass(materials[1], fbos[0]));
-		
-		// Draw the source to the destination fbo
-		renderPasses.add(new QuadRenderPass(materials[2], fbo));
 		
 		// Draw from fb0 to the destination fbo
 		renderPasses.add(new QuadRenderPass(materials[3], fbo));

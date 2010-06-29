@@ -6,12 +6,19 @@ import java.util.Map;
 
 import lw3d.renderer.ShaderProgram;
 import lw3d.renderer.ShaderProgram.Shader;
+import lw3d.renderer.ShaderProgram.Shader.Type;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 
 public class ShaderManager {
 	
 	Map<ShaderProgram, Integer> shaderProgramHandles = new HashMap<ShaderProgram, Integer>();
+	
+	final private boolean isUseFixedVertexFunction;
+	
+	public ShaderManager(boolean isUseFixedVertexFunction) {
+		this.isUseFixedVertexFunction = isUseFixedVertexFunction;
+	}
 	
 	public int getShaderProgramHandle(ShaderProgram shaderProgram) {
 		if(tryToUpload(shaderProgram))
@@ -29,6 +36,9 @@ public class ShaderManager {
 		Iterator<ShaderProgram.Shader> it = shaderProgram.getShaders().iterator();
 		while(it.hasNext()) {
 			Shader shader = it.next();
+			if(shader.type == Type.VERTEX && isUseFixedVertexFunction)
+				continue;
+			
 			int shaderHandle = ARBShaderObjects.glCreateShaderObjectARB(shader.type.getValue());
 						
 			ARBShaderObjects.glShaderSourceARB(shaderHandle, shader.source);

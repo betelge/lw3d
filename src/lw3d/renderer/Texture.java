@@ -14,6 +14,9 @@ public class Texture extends FBOAttachable{
 	private final TexelType texelType;
 	private final Filter filter; // TODO: Separate filters?
 	private final WrapMode wrapMode; // TODO: Separate wrap modes?
+	
+	// -1 if unspecified
+	private float mipmapLevel = -1;
 
 	// width and height are in the super class
 	private final int depth;
@@ -118,6 +121,14 @@ public class Texture extends FBOAttachable{
 
 	public WrapMode getWrapMode() {
 		return wrapMode;
+	}
+
+	public float getMipmapLevel() {
+		return mipmapLevel;
+	}
+
+	public void setMipmapLevel(float mipmapLevel) {
+		this.mipmapLevel = mipmapLevel;
 	}
 
 }

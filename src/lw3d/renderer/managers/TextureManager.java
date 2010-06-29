@@ -5,8 +5,11 @@ import java.util.Map;
 
 import lw3d.renderer.Texture;
 
+import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.SGISGenerateMipmap;
 
 public class TextureManager {
 
@@ -27,11 +30,6 @@ public class TextureManager {
 		int textureHandle = GL11.glGenTextures();
 		GL11.glBindTexture(texture.getTextureType().getValue(), textureHandle);
 
-		// Turn on mipmap generation
-		// TODO: deprecated?
-		GL11.glTexParameteri(texture.getTextureType().getValue(),
-				GL14.GL_GENERATE_MIPMAP, GL11.GL_TRUE);
-
 		// Upload data
 		switch (texture.getTextureType()) {
 		case TEXTURE_1D:
@@ -48,9 +46,20 @@ public class TextureManager {
 							.getExternalFormatValue(), texture.getTexelType()
 							.getValue(), texture.getTextureData());
 			break;
+		case TEXTURE_3D:
+			GL12.glTexImage3D(texture.getTextureType().getValue(), 0, texture
+					.getFormat().getInternalFormatValue(), texture.getWidth(),
+					texture.getHeight(), texture.getDepth(), 0, texture.getFormat()
+							.getExternalFormatValue(), texture.getTexelType()
+							.getValue(), texture.getTextureData());
+			break;
 		default:
 			return false;
 		}
+		
+		// Generate mipmaps if data was actually uploaded
+		if(texture.getTextureData() != null)
+			EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
 
 		// Set both filters
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
@@ -58,11 +67,18 @@ public class TextureManager {
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
 				GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR); // TODO: <- hardcoded linear
 
-		// Set both wrap modes
+		// Set wrap modes
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
 				GL11.GL_TEXTURE_WRAP_S, texture.getWrapMode().getValue());
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
 				GL11.GL_TEXTURE_WRAP_T, texture.getWrapMode().getValue());
+		GL11.glTexParameteri(texture.getTextureType().getValue(),
+				GL12.GL_TEXTURE_WRAP_R, texture.getWrapMode().getValue());
+		
+		if(texture.getMipmapLevel() != -1) {
+			GL11.glTexParameterf(texture.getTextureType().getValue(), GL12.GL_TEXTURE_MIN_LOD, (float)texture.getMipmapLevel());
+			GL11.glTexParameterf(texture.getTextureType().getValue(), GL12.GL_TEXTURE_MIN_LOD, (float)texture.getMipmapLevel());
+		}
 
 		textureHandles.put(texture, textureHandle);
 

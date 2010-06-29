@@ -59,7 +59,8 @@ public class View {
 				e.printStackTrace();
 			}
 						
-			renderer = new Renderer(45f, 0.01f, 1000f);
+			renderer = new Renderer(45f, 0.01f, 1000f,
+					model.isUseFixedVertexPipeline());
 			
 			state = State.LOOP;
 			lastFPSTime = Sys.getTime();
@@ -80,12 +81,6 @@ public class View {
 					frames = 0;
 					lastFPSTime = time;
 				}
-				
-				model.cube.getTransform().getRotation().multThis(
-						new Quaternion().fromAngleAxis(0.05f, Vector3f.UNIT_Y));
-				
-				if (Display.isCloseRequested())
-					state = State.CLOSING;
 
 				// Yield while paused
 				while (state == State.PAUSE)

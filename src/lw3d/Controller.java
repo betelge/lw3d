@@ -2,19 +2,24 @@ package lw3d;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
 
 public class Controller {
 
 	private Model model;
 	private View view;
+	
+	Simulator simulator;
 
 	Thread inputThread;
-	private boolean running = true;
+	private boolean isRunning = true;
 	private Runnable inputRunnable = new Runnable() {
 		@Override
 		public void run() {
 			
-			while (running) {
+			simulator.start();
+			
+			while (isRunning) {
 
 				while (Keyboard.next())
 					onKey(Keyboard.getEventKey(), Keyboard
@@ -42,6 +47,10 @@ public class Controller {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				
+				if(isRunning)
+					if (Display.isCloseRequested())
+						exit();
 			}
 		}
 	};
@@ -49,6 +58,9 @@ public class Controller {
 	public Controller(Model model, View view) {
 		this.model = model;
 		this.view = view;
+		
+		simulator = new Simulator(model.getSimulatedNodes());
+		simulator.start();
 
 		inputThread = new Thread(inputRunnable, "inputThread");
 		inputThread.start();
@@ -72,16 +84,21 @@ public class Controller {
 			boolean repeatEvent) {
 		
 		if(key == Keyboard.KEY_ESCAPE) {
-			this.running = false;
-			view.exit();
+			exit();
 		}	
 		
+	}
+	
+	private void exit() {
+		this.isRunning = false;
+		view.exit();
+		simulator.exit();
 	}
 
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
-		running = false;
+		isRunning = false;
 	}
 
 }

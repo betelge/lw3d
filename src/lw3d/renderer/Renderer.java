@@ -28,6 +28,8 @@ import org.lwjgl.opengl.GLContext;
 public class Renderer {
 
 	ContextCapabilities capabilities;
+	
+	final public boolean isUseFixedVertexPipeline;
 
 	GeometryManager geometryManager;
 	ShaderManager shaderManager;
@@ -43,11 +45,12 @@ public class Renderer {
 	List<GeometryNode> renderNodes = new ArrayList<GeometryNode>();
 	List<Transform> renderTransforms = new ArrayList<Transform>();
 
-	public Renderer(float fov, float zNear, float zFar) {
+	public Renderer(float fov, float zNear, float zFar, boolean isUseFixedVertexPipeline) {
+		this.isUseFixedVertexPipeline = isUseFixedVertexPipeline;
 		capabilities = GLContext.getCapabilities();
 
 		// TODO: Optionally set (core) profile
-
+		
 		// Demand VBO support
 		if (!capabilities.GL_ARB_vertex_buffer_object)
 			return;
@@ -69,8 +72,8 @@ public class Renderer {
 		else if (capabilities.OpenGL11)
 			System.out.println("OpenGL11");
 
-		geometryManager = new GeometryManager();
-		shaderManager = new ShaderManager();
+		geometryManager = new GeometryManager(isUseFixedVertexPipeline);
+		shaderManager = new ShaderManager(isUseFixedVertexPipeline);
 		textureManager = new TextureManager();
 		renderBufferManager = new RenderBufferManager();
 		fboManager = new FBOManager(textureManager, renderBufferManager);
@@ -145,7 +148,10 @@ public class Renderer {
 		// Draw
 		GL11.glDrawElements(GL11.GL_QUADS, geometryInfo.count,
 				GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
-
+		
+		if(fbo != null)
+			fboManager.generateMipmaps(fbo);
+		 
 	}
 
 	public void renderScene(Node rootNode, CameraNode cameraNode) {
@@ -230,7 +236,12 @@ public class Renderer {
 			// Draw
 			GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
 					GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
+			
 		}
+		
+		if(fbo != null)
+			fboManager.generateMipmaps(fbo);
+		
 	}
 
 	private void bindAttributes(int shaderProgram, String[] attributeNames) {

@@ -1,11 +1,9 @@
 #version 120
 
 uniform sampler2D texture0;
-uniform vec4 col2 = vec4(1.0,0.0,0.0,1.0);
 
 varying vec2 tc;
 varying vec3 N;
-varying vec4 col;
 
 void main()
 {

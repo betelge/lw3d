@@ -19,6 +19,8 @@ import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.ARBVertexShader;
 
 public class GeometryManager {
+	
+	final private boolean isUseFixedVertexPipeline;
 
 	private int indexVBOHandle;
 	private int dataVBOHandle;
@@ -45,7 +47,9 @@ public class GeometryManager {
 
 	Map<Geometry, GeometryInfo> geometryInfos = new HashMap<Geometry, GeometryInfo>();
 
-	public GeometryManager() {
+	public GeometryManager(boolean isUseFixedVertexPipeline) {
+		this.isUseFixedVertexPipeline = isUseFixedVertexPipeline;
+		
 		IntBuffer buff = BufferUtils.createIntBuffer(1);
 		ARBVertexBufferObject.glGenBuffersARB(buff);
 		indexVBOHandle = buff.get(0);

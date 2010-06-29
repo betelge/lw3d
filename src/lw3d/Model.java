@@ -12,11 +12,14 @@ import java.util.Set;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 
+import lw3d.math.Vector3f;
 import lw3d.renderer.CameraNode;
 import lw3d.renderer.FBO;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.GeometryNode;
 import lw3d.renderer.Material;
+import lw3d.renderer.MovableGeometryNode;
+import lw3d.renderer.MovableNode;
 import lw3d.renderer.Node;
 import lw3d.renderer.RenderBuffer;
 import lw3d.renderer.ShaderProgram;
@@ -42,9 +45,11 @@ public class Model {
 	
 	private List<RenderPass> renderPasses = new ArrayList<RenderPass>();
 	
+	final private Set<Node> simulatedNodes = new HashSet<Node>();
+	
 	public boolean vsync = true;
 	
-	public GeometryNode cube;
+	final public boolean isUseFixedVertexPipeline = false;
 
 	public Model() {
 
@@ -58,7 +63,7 @@ public class Model {
 					.add(new Shader(
 							Shader.Type.VERTEX,
 							StringLoader.loadString(new File("resources/default.vertex"))));
-
+			
 			shaders
 					.add(new Shader(
 							Shader.Type.FRAGMENT,
@@ -83,7 +88,7 @@ public class Model {
 		Material defaultMaterial = new Material(shaderProgram);
 		Material fboMaterial = new Material(fboShaderProgram);
 
-		cube = new GeometryNode(cubeMesh, defaultMaterial);
+		MovableGeometryNode cube = new MovableGeometryNode(cubeMesh, defaultMaterial);
 		Uniform[] uniforms = new Uniform[1];
 		uniforms[0] = new Uniform("col2", 0f, 1f, 0f, 1f);
 		defaultMaterial.setUniforms(uniforms);
@@ -100,6 +105,7 @@ public class Model {
 		Texture fboTexture = new Texture(null, TextureType.TEXTURE_2D,
 				Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight(),
 				TexelType.UINT, Format.GL_RGBA8, Filter.LINEAR_MIPMAP_NEAREST, WrapMode.CLAMP);
+		//fboTexture.setMipmapLevel(1f);
 		
 		RenderBuffer depthBuffer = new RenderBuffer(Format.GL_DEPTH_COMPONENT,
 				Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
@@ -111,7 +117,9 @@ public class Model {
 		fboMaterial.addTexture("source", fboTexture);
 		
 		Node rootNode = new Node();
+		simulatedNodes.add(rootNode);
 		CameraNode cameraNode = new CameraNode();
+		rootNode.attach(cameraNode);
 		
 		// Create render passes
 		renderPasses.add(new SceneRenderPass(rootNode, cameraNode, myFBO));
@@ -123,9 +131,20 @@ public class Model {
 		cube.getTransform().getPosition().z = -5f;
 		/*cube.getTransform().getPosition().x = 1f;
 		cube.getTransform().getPosition().y = -1f;*/
+		
+		cube.getMovement().getPosition().x = 0.000f;
+		cube.getMovement().getRotation().fromAngleNormalAxis(0.03f, Vector3f.UNIT_Z);
 	}
 
 	public List<RenderPass> getRenderPasses() {
 		return renderPasses;
+	}
+
+	public Set<Node> getSimulatedNodes() {
+		return simulatedNodes;
+	}
+
+	public boolean isUseFixedVertexPipeline() {
+		return isUseFixedVertexPipeline;
 	}
 }

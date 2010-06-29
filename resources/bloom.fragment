@@ -10,5 +10,5 @@ void main()
 {
 	gl_FragColor = 	6.0/10.0 * texture2D(source, pos) +
 					5.0/10.0 * texture2D(source, pos + offset) +
-					5.0/10.0* texture2D(source, pos - offset);
+					5.0/10.0 * texture2D(source, pos - offset);
 }

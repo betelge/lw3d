@@ -25,7 +25,7 @@ public class FBOManager {
 	}
 
 	public int getFBOHandle(FBO fbo) {
-		generateMipmaps(fbo);
+		//generateMipmaps(fbo);
 		if (tryToUpload(fbo))
 			return FBOHandles.get(fbo);
 		else
