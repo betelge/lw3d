@@ -63,7 +63,7 @@ public class Model {
 					.add(new Shader(
 							Shader.Type.VERTEX,
 							StringLoader.loadString(new File("resources/default.vertex"))));
-			
+
 			shaders
 					.add(new Shader(
 							Shader.Type.FRAGMENT,
@@ -104,8 +104,8 @@ public class Model {
 		// FBO texture
 		Texture fboTexture = new Texture(null, TextureType.TEXTURE_2D,
 				Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight(),
-				TexelType.UINT, Format.GL_RGBA8, Filter.LINEAR_MIPMAP_NEAREST, WrapMode.CLAMP);
-		//fboTexture.setMipmapLevel(1f);
+				TexelType.UBYTE, Format.GL_RGBA8, Filter.LINEAR, WrapMode.CLAMP);
+		//fboTexture.setMipmapLevel(0f);
 		
 		RenderBuffer depthBuffer = new RenderBuffer(Format.GL_DEPTH_COMPONENT,
 				Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
@@ -126,12 +126,11 @@ public class Model {
 		//renderPasses.add(new QuadRenderPass(fboMaterial));
 		renderPasses.add(new BloomPass(fboMaterial.getTextures().get("source")));
 		
-
 		rootNode.attach(cube);
 		cube.getTransform().getPosition().z = -5f;
 		/*cube.getTransform().getPosition().x = 1f;
 		cube.getTransform().getPosition().y = -1f;*/
-		
+
 		cube.getMovement().getPosition().x = 0.000f;
 		cube.getMovement().getRotation().fromAngleNormalAxis(0.03f, Vector3f.UNIT_Z);
 	}

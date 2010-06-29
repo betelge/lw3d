@@ -22,9 +22,9 @@ import lw3d.renderer.Texture.WrapMode;
 import lw3d.utils.StringLoader;
 
 public class BloomPass extends RenderMultiPass {
-	final int width = 420;
-	final int height = 263;
-	final float mipmapLevel = 0f;
+	final int width = 512;
+	final int height = 512;
+	final float mipmapLevel = 2f;
 	
 	final File vertexFile = new File("resources/direct.vertex");
 	final File bloomFragmentFile = new File("resources/bloom.fragment");
@@ -79,8 +79,8 @@ public class BloomPass extends RenderMultiPass {
 		
 		for (int i = 0; i < textures.length; i++) {
 			textures[i] = new Texture(null, TextureType.TEXTURE_2D, width, height,
-					TexelType.UINT, Format.GL_RGB8,
-					Filter.LINEAR_MIPMAP_LINEAR, WrapMode.CLAMP_TO_BORDER);
+					TexelType.UBYTE, Format.GL_RGB8,
+					Filter.LINEAR_MIPMAP_NEAREST, WrapMode.CLAMP_TO_BORDER);
 			textures[i].setMipmapLevel(mipmapLevel);
 		}
 

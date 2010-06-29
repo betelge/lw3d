@@ -25,7 +25,9 @@ public class FBOManager {
 	}
 
 	public int getFBOHandle(FBO fbo) {
-		//generateMipmaps(fbo);
+		// TODO: Why is this line needed?
+		generateMipmaps(fbo);
+		
 		if (tryToUpload(fbo))
 			return FBOHandles.get(fbo);
 		else
@@ -81,16 +83,42 @@ public class FBOManager {
 	public void generateMipmaps(FBO fbo) {
 		for (int i = 0; i < fbo.getAttachables().length && i <= 15; i++) {
 			if (fbo.getAttachables()[i] instanceof Texture) {
+				//System.out.println("mipmaping: " + fbo.getAttachables()[i]);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureManager
 						.getTextureHandle((Texture) fbo.getAttachables()[i]));
 				EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
 			}
 		}
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 	}
 
 	public boolean isComplete(FBO fbo) {
 		tryToUpload(fbo);
-		return (EXTFramebufferObject.glCheckFramebufferStatusEXT(
-						EXTFramebufferObject.GL_FRAMEBUFFER_EXT) == EXTFramebufferObject.GL_FRAMEBUFFER_COMPLETE_EXT);
+		int fboStatus = EXTFramebufferObject.glCheckFramebufferStatusEXT(
+				EXTFramebufferObject.GL_FRAMEBUFFER_EXT);
+		switch(fboStatus) {
+		case EXTFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+			System.out.println("FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+			break;
+		case EXTFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+			System.out.println("FRAMEBUFFER_INCOMPLETE_DIMENSIONS");
+			break;
+		case EXTFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+			System.out.println("FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
+			break;
+		case EXTFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+			System.out.println("FRAMEBUFFER_INCOMPLETE_FORMATS");
+			break;
+		case EXTFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+			System.out.println("FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+			break;
+		case EXTFramebufferObject.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+			System.out.println("FRAMEBUFFER_INCOMPLETE_READ_BUFFER");
+			break;
+		case EXTFramebufferObject.GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+			System.out.println("FRAMEBUFFER_UNSUPPORTED");
+			break;
+		}
+		return (fboStatus == EXTFramebufferObject.GL_FRAMEBUFFER_COMPLETE_EXT);
 	}
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import lw3d.math.Transform;
+import lw3d.renderer.ShaderProgram.Shader;
 import lw3d.renderer.managers.FBOManager;
 import lw3d.renderer.managers.GeometryManager;
 import lw3d.renderer.managers.RenderBufferManager;
@@ -45,12 +46,17 @@ public class Renderer {
 	List<GeometryNode> renderNodes = new ArrayList<GeometryNode>();
 	List<Transform> renderTransforms = new ArrayList<Transform>();
 
+	// Function as a "backbuffer" for the procesnode to write to. Are then
+	// swapped with the "front"
+	List<GeometryNode> backRenderNodes = new ArrayList<GeometryNode>();
+	List<Transform> backRenderTransforms = new ArrayList<Transform>();
+
 	public Renderer(float fov, float zNear, float zFar, boolean isUseFixedVertexPipeline) {
 		this.isUseFixedVertexPipeline = isUseFixedVertexPipeline;
 		capabilities = GLContext.getCapabilities();
 
 		// TODO: Optionally set (core) profile
-		
+
 		// Demand VBO support
 		if (!capabilities.GL_ARB_vertex_buffer_object)
 			return;
@@ -136,7 +142,7 @@ public class Renderer {
 		ARBShaderObjects.glUseProgramObjectARB(shaderProgram);
 
 		// Bind textures
-		bindTextures(shaderProgram, material);
+		bindTextures(shaderProgram, material.getTextures());
 
 		// Upload uniforms
 		Uniform[] uniforms = material.getUniforms();
@@ -154,19 +160,42 @@ public class Renderer {
 		 
 	}
 
+	public void renderSceneNonOpenGL(Node rootNode, CameraNode cameraNode) {
+		backRenderNodes.clear();
+		backRenderTransforms.clear();
+
+		ProcessNode(rootNode, cameraNode.getTransform().invert());
+
+		List<GeometryNode> tempRenderNodes = backRenderNodes;
+		List<Transform> tempRenderTransforms = backRenderTransforms;
+		backRenderNodes = renderNodes;
+		backRenderTransforms = renderTransforms;
+		renderNodes = tempRenderNodes;
+		renderTransforms = tempRenderTransforms;
+	}
+
 	public void renderScene(Node rootNode, CameraNode cameraNode) {
 		renderScene(rootNode, cameraNode, null);
 	}
 
 	public void renderScene(Node rootNode, CameraNode cameraNode, FBO fbo) {
-		renderNodes.clear();
-		renderTransforms.clear();
-
-		ProcessNode(rootNode, cameraNode.getTransform().invert());
+		
+		renderSceneNonOpenGL(rootNode, cameraNode);
 
 		// Current objects. Used for performance.
-		Geometry currentGeometry = null;
-		int currentVAOhandle = -1;
+		Geometry oldGeometry = null;
+		GeometryInfo oldGeometryInfo = null;
+		Map<String, Texture> oldTextures = null;
+		int shaderProgramHandle = 0;
+		int oldShaderProgramHandle = 0;
+		ShaderProgram shaderProgram = null;
+		ShaderProgram oldShaderProgram = null;
+		Uniform[] uniforms = null;
+		Uniform[] oldUniforms = null;
+		int modelViewMatrixLocation = 0;
+		int perspectiveMatrixLocation = 0;
+		int normalMatrixLocation = 0;
+
 		GeometryInfo geometryInfo = null;
 
 		// Bind FBO
@@ -186,57 +215,78 @@ public class Renderer {
 
 			Geometry geometry = geometryNode.getGeometry();
 
-			if (currentGeometry != geometry) {
+			if (oldGeometry != geometry) {
 
 				geometryInfo = geometryManager.getGeometryInfo(geometry);
 
-				if (currentVAOhandle != geometryInfo.VAO) {
-					// Bind VAO
-					ARBVertexArrayObject.glBindVertexArray(geometryInfo.VAO);
-					currentVAOhandle = geometryInfo.VAO;
-				}
+				// Bind VAO
+				ARBVertexArrayObject.glBindVertexArray(geometryInfo.VAO);
 			}
 
 			// Set shader
-			int shaderProgram = shaderManager
-					.getShaderProgramHandle(geometryNode.getMaterial()
-							.getShaderProgram());
-			ARBShaderObjects.glUseProgramObjectARB(shaderProgram);
+			shaderProgram = geometryNode.getMaterial().getShaderProgram();
+			if (oldShaderProgram != shaderProgram) {
+				shaderProgramHandle = shaderManager
+						.getShaderProgramHandle(geometryNode.getMaterial()
+								.getShaderProgram());
+				ARBShaderObjects.glUseProgramObjectARB(shaderProgramHandle);
+			}
 
 			// Bind textures
-			bindTextures(shaderProgram, geometryNode.getMaterial());
+			Map<String, Texture> textures = geometryNode.getMaterial()
+					.getTextures();
+			if (oldTextures != textures) {
+				bindTextures(shaderProgramHandle, textures);
+			}
 
 			// Upload uniforms
-			// TODO: check for changes instead?
-			Uniform[] uniforms = geometryNode.getMaterial().getUniforms();
-			uploadUniforms(shaderProgram, uniforms);
+			uniforms = geometryNode.getMaterial().getUniforms();
+			if (oldUniforms != uniforms
+					|| oldShaderProgramHandle != shaderProgramHandle) {
+				// TODO: check for changes instead?
+				uploadUniforms(shaderProgramHandle, uniforms);
+			}
+
+			if (oldShaderProgram != shaderProgram) {
+				modelViewMatrixLocation = ARBShaderObjects
+						.glGetUniformLocationARB(shaderProgramHandle,
+								"modelViewMatrix");
+				perspectiveMatrixLocation = ARBShaderObjects
+						.glGetUniformLocationARB(shaderProgramHandle,
+								"perspectiveMatrix");
+				normalMatrixLocation = ARBShaderObjects
+						.glGetUniformLocationARB(shaderProgramHandle,
+								"normalMatrix");
+			}
 
 			modelViewMatrix.clear();
 			modelViewMatrix.put(transform.toMatrix4());
 			modelViewMatrix.flip();
-			int matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
-					shaderProgram, "modelViewMatrix");
-			ARBShaderObjects.glUniformMatrix4ARB(matrixLocation, true,
+			ARBShaderObjects.glUniformMatrix4ARB(modelViewMatrixLocation, true,
 					modelViewMatrix);
-			matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
-					shaderProgram, "perspectiveMatrix");
-			ARBShaderObjects.glUniformMatrix4ARB(matrixLocation, false,
-					perspectiveMatrix);
+			ARBShaderObjects.glUniformMatrix4ARB(perspectiveMatrixLocation,
+					false, perspectiveMatrix);
 			normalMatrix.clear();
 			normalMatrix.put(transform.getRotation().toMatrix3());
 			normalMatrix.flip();
-			matrixLocation = ARBShaderObjects.glGetUniformLocationARB(
-					shaderProgram, "normalMatrix");
-			ARBShaderObjects.glUniformMatrix3ARB(matrixLocation, false,
+			ARBShaderObjects.glUniformMatrix3ARB(normalMatrixLocation, false,
 					normalMatrix);
 
 			// Bind vertex attributes to uniform names
-			bindAttributes(shaderProgram, geometryInfo.attributeNames);
+			if (oldGeometryInfo != geometryInfo
+					|| oldShaderProgramHandle != shaderProgramHandle)
+				bindAttributes(shaderProgramHandle, geometryInfo.attributeNames);
 
 			// Draw
 			GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
 					GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
-			
+
+			oldGeometry = geometry;
+			oldGeometryInfo = geometryInfo;
+			oldTextures = textures;
+			oldShaderProgramHandle = shaderProgramHandle;
+			oldShaderProgram = shaderProgram;
+			oldUniforms = uniforms;
 		}
 		
 		if(fbo != null)
@@ -251,16 +301,16 @@ public class Renderer {
 		}
 	}
 
-	private void bindTextures(int shaderProgram, Material material) {
-		Map<String, Texture> textures = material.getTextures();
+	private void bindTextures(int shaderProgramHandle,
+			Map<String, Texture> textures) {
 		Iterator<String> it = textures.keySet().iterator();
 		int i = 0;
 		while (it.hasNext()) {
 			String name = it.next();
 			Texture texture = textures.get(name);
-			
+
 			int textureLocation = ARBShaderObjects.glGetUniformLocationARB(
-					shaderProgram, name);
+					shaderProgramHandle, name);
 			GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
 			GL11.glBindTexture(texture.getTextureType().getValue(),
 					textureManager.getTextureHandle(texture));
@@ -294,8 +344,8 @@ public class Renderer {
 		Transform currentTransform = transform.mult(node.getTransform());
 
 		if (node instanceof GeometryNode) {
-			renderNodes.add((GeometryNode) node);
-			renderTransforms.add(currentTransform);
+			backRenderNodes.add((GeometryNode) node);
+			backRenderTransforms.add(currentTransform);
 		}
 
 		Iterator<Node> it = node.getChildren().iterator();

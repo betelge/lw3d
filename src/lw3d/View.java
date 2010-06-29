@@ -44,6 +44,12 @@ public class View {
 		openGLThread = new Thread(openGLRunnable, "OpenGL");
 		openGLThread.start();
 	}
+	
+	private final Runnable nonOpenGLRunnable = new Runnable() {
+		public void run() {
+			
+		}
+	};
 
 	private final Runnable openGLRunnable = new Runnable() {
 		public void run() {

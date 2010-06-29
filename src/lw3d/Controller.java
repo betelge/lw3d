@@ -1,5 +1,7 @@
 package lw3d;
 
+import lw3d.View.State;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -21,26 +23,31 @@ public class Controller {
 			
 			while (isRunning) {
 
-				while (Keyboard.next())
-					onKey(Keyboard.getEventKey(), Keyboard
-							.getEventKeyState(), Keyboard.isRepeatEvent());
-
-				while (Mouse.next()) {
-					if (Mouse.getEventButton() != -1)
-						onMouseButton(Mouse.getEventButton(), Mouse
-								.getEventButtonState(), Mouse.getEventX(),
-								Mouse.getEventY());
-					else {
-						if (Mouse.getEventDWheel() != 0)
-							onMouseWheel(Mouse.getEventDWheel(),
-									Mouse.getEventX(), Mouse.getEventY());
-						if (Mouse.getEventDX() != 0 || Mouse.getEventDY() != 0)
-							onMouseMove(Mouse.getEventDX(), Mouse
-									.getEventDY(), Mouse.getEventX(), Mouse
-									.getEventY());
-					}
+				while (Keyboard.next()) {
+					onKey(Keyboard.getEventKey(), Keyboard.getEventKeyState(),
+							Keyboard.isRepeatEvent());
+					if (!isRunning)
+						continue;
 				}
-				
+
+				if (isRunning)
+					while (Mouse.next()) {
+						if (Mouse.getEventButton() != -1)
+							onMouseButton(Mouse.getEventButton(), Mouse
+									.getEventButtonState(), Mouse.getEventX(),
+									Mouse.getEventY());
+						else {
+							if (Mouse.getEventDWheel() != 0)
+								onMouseWheel(Mouse.getEventDWheel(), Mouse
+										.getEventX(), Mouse.getEventY());
+							if (Mouse.getEventDX() != 0
+									|| Mouse.getEventDY() != 0)
+								onMouseMove(Mouse.getEventDX(), Mouse
+										.getEventDY(), Mouse.getEventX(), Mouse
+										.getEventY());
+						}
+					}
+
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
@@ -67,16 +74,15 @@ public class Controller {
 	}
 
 	protected void onMouseMove(int dX, int dY, int x, int y) {
-		
+
 	}
 
 	protected void onMouseWheel(int dWheel, int x, int y) {
-		
+
 	}
 
-	protected void onMouseButton(int button, boolean buttonState,
-			int x, int y) {
-		if(buttonState)
+	protected void onMouseButton(int button, boolean buttonState, int x, int y) {
+		if (buttonState)
 			System.out.println("Click: (" + x + ", " + y + ")");
 	}
 
