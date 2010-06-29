@@ -154,9 +154,6 @@ public class Renderer {
 		// Draw
 		GL11.glDrawElements(GL11.GL_QUADS, geometryInfo.count,
 				GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
-		
-		if(fbo != null)
-			fboManager.generateMipmaps(fbo);
 		 
 	}
 
@@ -288,10 +285,7 @@ public class Renderer {
 			oldShaderProgram = shaderProgram;
 			oldUniforms = uniforms;
 		}
-		
-		if(fbo != null)
-			fboManager.generateMipmaps(fbo);
-		
+
 	}
 
 	private void bindAttributes(int shaderProgram, String[] attributeNames) {

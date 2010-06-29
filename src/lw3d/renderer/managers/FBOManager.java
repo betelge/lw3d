@@ -26,7 +26,7 @@ public class FBOManager {
 
 	public int getFBOHandle(FBO fbo) {
 		// TODO: Why is this line needed?
-		generateMipmaps(fbo);
+		//generateMipmaps(fbo);
 		
 		if (tryToUpload(fbo))
 			return FBOHandles.get(fbo);
@@ -53,6 +53,8 @@ public class FBOManager {
 		if (fbo.getStencilBuffer() != null)
 			attach(EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT, fbo
 					.getStencilBuffer());
+		
+		generateMipmaps(fbo);
 
 		FBOHandles.put(fbo, handle);
 
