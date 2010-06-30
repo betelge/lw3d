@@ -155,8 +155,11 @@ public class Renderer {
 		GL11.glDrawElements(GL11.GL_QUADS, geometryInfo.count,
 				GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
 		
-		if(fbo != null)
+		if(fbo != null) {
+			EXTFramebufferObject.glBindFramebufferEXT(
+					EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
 			fboManager.generateMipmaps(fbo);
+		}
 		 
 	}
 
@@ -288,9 +291,12 @@ public class Renderer {
 			oldShaderProgram = shaderProgram;
 			oldUniforms = uniforms;
 		}
-		
-		if(fbo != null)
+
+		if(fbo != null) {
+			EXTFramebufferObject.glBindFramebufferEXT(
+					EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
 			fboManager.generateMipmaps(fbo);
+		}
 
 	}
 

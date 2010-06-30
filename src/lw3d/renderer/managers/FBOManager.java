@@ -37,6 +37,9 @@ public class FBOManager {
 	private boolean tryToUpload(FBO fbo) {
 		if (FBOHandles.containsKey(fbo))
 			return true;
+		
+		// Allocate texture and mipmap space
+		generateMipmaps(fbo);
 
 		int handle = EXTFramebufferObject.glGenFramebuffersEXT();
 		EXTFramebufferObject.glBindFramebufferEXT(
@@ -54,8 +57,6 @@ public class FBOManager {
 			attach(EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT, fbo
 					.getStencilBuffer());
 		
-		generateMipmaps(fbo);
-
 		FBOHandles.put(fbo, handle);
 
 		return true;
@@ -85,7 +86,6 @@ public class FBOManager {
 	public void generateMipmaps(FBO fbo) {
 		for (int i = 0; i < fbo.getAttachables().length && i <= 15; i++) {
 			if (fbo.getAttachables()[i] instanceof Texture) {
-				//System.out.println("mipmaping: " + fbo.getAttachables()[i]);
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureManager
 						.getTextureHandle((Texture) fbo.getAttachables()[i]));
 				EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
