@@ -24,7 +24,7 @@ import lw3d.utils.StringLoader;
 public class BloomPass extends RenderMultiPass {
 	final int width = 512;
 	final int height = 512;
-	final float mipmapLevel = 0.51f;
+	final float mipmapLevel = 2f;
 	
 	final File vertexFile = new File("resources/direct.vertex");
 	final File bloomFragmentFile = new File("resources/bloom.fragment");
