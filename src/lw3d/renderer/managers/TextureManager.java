@@ -76,9 +76,8 @@ public class TextureManager {
 			return false;
 		}
 		
-		// Generate mipmaps if data was actually uploaded
-		if(texture.getTextureData() != null)
-			EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
+		// Generate mipmaps
+		EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
 
 		textureHandles.put(texture, textureHandle);
 
