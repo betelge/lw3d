@@ -129,13 +129,22 @@ public class Model {
 		//renderPasses.add(new QuadRenderPass(fboMaterial));
 		renderPasses.add(new BloomPass(fboMaterial.getTextures().get("source")));
 		
-		rootNode.attach(cube);
+		Node elbow = new Node();
+		
+		rootNode.attach(elbow);		
+		elbow.attach(cube);
+		elbow.getTransform().getPosition().x = 0.5f;
+		elbow.getTransform().getRotation().fromAngleAxis(
+				1f, Vector3f.UNIT_Z);
 		cube.getTransform().getPosition().z = -5f;
-		/*cube.getTransform().getPosition().x = 1f;
-		cube.getTransform().getPosition().y = -1f;*/
+		cube.getTransform().getPosition().x = 1f;
+		cube.getTransform().getPosition().y = -1f;
+		
+		cube.getTransform().getRotation().fromAngleAxis(
+				(float)Math.PI/2*3, new Vector3f(1f, 2f, 1f));
 
-		cube.getMovement().getPosition().x = 0.000f;
-		cube.getMovement().getRotation().fromAngleNormalAxis(0.03f, Vector3f.UNIT_Z);
+		//cube.getMovement().getPosition().x = 0.000f;
+		//cube.getMovement().getRotation().fromAngleNormalAxis(0.03f, Vector3f.UNIT_Z);
 	}
 
 	public List<RenderPass> getRenderPasses() {

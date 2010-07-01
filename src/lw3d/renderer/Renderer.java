@@ -278,7 +278,7 @@ public class Renderer {
 			normalMatrix.clear();
 			normalMatrix.put(transform.getRotation().toMatrix3());
 			normalMatrix.flip();
-			ARBShaderObjects.glUniformMatrix3ARB(normalMatrixLocation, false,
+			ARBShaderObjects.glUniformMatrix3ARB(normalMatrixLocation, true,
 					normalMatrix);
 
 			// Bind vertex attributes to uniform names

@@ -7,5 +7,5 @@ varying vec3 N;
 
 void main()
 {
-	gl_FragColor = texture2D(texture0, tc) * (0.0 + 1.0*clamp(dot(normalize(N), normalize(vec3(1.0, 1.0, 0.2))), 0.0, 1.0 ));
+	gl_FragColor = vec4(N, 1.0) * texture2D(texture0, tc);// * (0.0 + 1.0*clamp(dot(normalize(N), normalize(vec3(1.0, 1.0, 0.2))), 0.0, 1.0 ));
 }

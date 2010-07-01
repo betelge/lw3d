@@ -172,7 +172,7 @@ public class Simulator {
 			Movable movableNode = (Movable) node;
 			//movableNode.getTransform().multThis(movableNode.getMovement());
 			movableNode.setTransform(
-					movableNode.getTransform().mult(movableNode.getMovement()));
+					movableNode.getMovement().mult(movableNode.getTransform()));
 
 			/*
 			 * Transform localTransform = ((Movable) node).getLocalTransform();
