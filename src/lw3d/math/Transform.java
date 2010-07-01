@@ -31,6 +31,18 @@ public class Transform {
 		scale.set(1f, 1f, 1f);
 		return this.set(position, rotation, scale);
 	}
+	
+	public Transform add(Transform transform) {
+		Transform result = new Transform(this);
+		result.addThis(transform);
+		return result;
+	}
+	
+	public void addThis(Transform transform) {
+		position.addThis(transform.position);
+		scale.multThis(transform.scale);
+		rotation.multThis(transform.rotation);
+	}
 
 	public Transform set(Vector3f position, Quaternion rotation, Vector3f scale) {
 		this.position.set(position);
@@ -42,19 +54,19 @@ public class Transform {
 	public Transform mult(Transform transform) {
 		return new Transform(position.add(rotation.mult(transform.position)
 				.mult(scale)), rotation.mult(transform.rotation), scale
-				.mult(rotation.mult(transform.scale)));
+				.mult(transform.scale));
 	}
 
 	public void multThis(Transform transform) {
 		position.addThis(rotation.mult(transform.position).mult(scale));
-		scale.multThis(/* rotation.mult( */transform.scale/* ) */);
+		scale.multThis(transform.scale);
 		rotation.multThis(transform.rotation);
 	}
 
 	public Transform invert() {
-		Transform transform = new Transform(this);
-		transform.invertThis();
-		return transform;
+		Transform result = new Transform(this);
+		result.invertThis();
+		return result;
 	}
 
 	public void invertThis() {
@@ -99,14 +111,27 @@ public class Transform {
 		float[] m = new float[16];
 		float[] qm = rotation.toMatrix3();
 		
+		// Rotation
 		for(int i = 0; i < 3; i++)
 			for(int j = 0; j < 3; j++)
 				m[4*i+j] = qm[3*i+j];
+		
+		// Translation
 		m[3] = position.x;
 		m[7] = position.y;
 		m[11] = position.z;
 		m[12] = m[13] = m[14] = 0;
 		m[15] = 1;
+		
+		// Scaling
+		if(scale.x != 1 || scale.y != 1 || scale.z != 1) {
+			for(int i = 0; i < 3; i++)
+				m[i] *= scale.x;
+			for(int i = 4; i < 7; i++)
+				m[i] *= scale.y;
+			for(int i = 8; i < 11; i++)
+				m[i] *= scale.z;
+		}
 		
 		return m;
 	}

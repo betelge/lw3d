@@ -91,7 +91,7 @@ public class Model {
 		Material fboMaterial = new Material(fboShaderProgram);
 		
 		Node rootNode = new Node();
-		GeometryNode[] cubes = new GeometryNode[1-1];
+		GeometryNode[] cubes = new GeometryNode[20-1];
 		
 		for(int i = 0; i < cubes.length; i++) {
 			cubes[i] = new GeometryNode(cubeMesh, defaultMaterial);
@@ -139,22 +139,19 @@ public class Model {
 		renderPasses.add(new BloomPass(fboMaterial.getTextures().get("source")));
 		
 		MovableGeometryNode cube = new MovableGeometryNode(cubeMesh, defaultMaterial);
-		Node elbow = new Node();
 		
-		rootNode.attach(elbow);		
-		elbow.attach(cube);
-		elbow.getTransform().getPosition().x = 0.5f;
-		elbow.getTransform().getRotation().fromAngleAxis(
-				1f, Vector3f.UNIT_Z);
+		rootNode.attach(cube);
+
 		cube.getTransform().getPosition().z = -5f;
 		cube.getTransform().getPosition().x = 1f;
-		cube.getTransform().getPosition().y = -1f;
+		//cube.getTransform().getPosition().y = -1f;
 		
-		cube.getTransform().getRotation().fromAngleAxis(
-				(float)Math.PI/2*3, new Vector3f(1f, 2f, 1f));
+		/*cube.getTransform().getRotation().fromAngleAxis(
+				(float)Math.PI/2*3, new Vector3f(1f, 2f, 1f));*/
 
-		//cube.getMovement().getPosition().x = 0.000f;
-		//cube.getMovement().getRotation().fromAngleNormalAxis(0.03f, Vector3f.UNIT_Z);
+		cube.getMovement().getPosition().x = -0.01f;
+		cube.getMovement().getRotation().fromAngleNormalAxis(0.03f, Vector3f.UNIT_Z);
+		
 	}
 
 	public List<RenderPass> getRenderPasses() {

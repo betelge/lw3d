@@ -170,9 +170,8 @@ public class Simulator {
 		 * } } else
 		 */if (node instanceof Movable) {
 			Movable movableNode = (Movable) node;
-			//movableNode.getTransform().multThis(movableNode.getMovement());
-			movableNode.setTransform(
-					movableNode.getMovement().mult(movableNode.getTransform()));
+			movableNode.getTransform().addThis(movableNode.getMovement());
+
 
 			/*
 			 * Transform localTransform = ((Movable) node).getLocalTransform();

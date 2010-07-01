@@ -81,11 +81,11 @@ public class Quaternion
 
 	public void mult(Vector3f vector, Vector3f result)
 	{
-		float tempX =
+		result.x =
 				w * w * vector.x + 2 * y * w * vector.z - 2 * z * w * vector.y
 						+ x * x * vector.x + 2 * y * x * vector.y + 2 * z * x
 						* vector.z - z * z * vector.x - y * y * vector.x;
-		float tempY =
+		result.y =
 				2 * x * y * vector.x + y * y * vector.y + 2 * z * y * vector.z
 						+ 2 * w * z * vector.x - z * z * vector.y + w * w
 						* vector.y - 2 * x * w * vector.z - x * x * vector.y;
@@ -93,8 +93,6 @@ public class Quaternion
 				2 * x * z * vector.x + 2 * y * z * vector.y + z * z * vector.z
 						- 2 * w * y * vector.x - y * y * vector.z + 2 * w * x
 						* vector.y - x * x * vector.z + w * w * vector.z;
-		result.x = tempX;
-		result.y = tempY;
 	}
 
 	public Quaternion inverse()
@@ -259,17 +257,17 @@ public class Quaternion
 	public float[] toMatrix3() {
 		float[] m = new float[9];
 		
-		m[0] = x*x + y*y -z*z -w*w;
-		m[1] = 2*y*z - 2*x*w;
-		m[2] = 2*y*w + 2*x*z;
+		m[0] = 1 - 2 * (y*y + z*z);
+		m[3] = 2 * (x*y + z*w);
+		m[6] = 2 * (x*z - y*w);
 		
-		m[3] = 2*y*z + 2*x*w;
-		m[4] = x*x - y*y + z*z - w*w;
-		m[5] = 2*z*w - 2*x*y;
+		m[1] = 2 * (x*y - z*w);
+		m[4] = 1 - 2* (x*x + z*z);
+		m[7] = 2 * (y*z + x*w);
 		
-		m[6] = 2*y*w - 2*x*z;
-		m[7] = 2*z*w + 2*x*y;
-		m[8] = x*x - y*y - z*z + w*w;
+		m[2] = 2 * (x*z + y*w);
+		m[5] = 2 * (y*z - x*w);
+		m[8] = 1 - 2 * (x*x + y*y);
 		
 		return m;
 	}

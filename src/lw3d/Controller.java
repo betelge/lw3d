@@ -83,7 +83,8 @@ public class Controller {
 	}
 
 	protected void onMouseWheel(int dWheel, int x, int y) {
-
+		Quaternion rot = new Quaternion().fromAngleNormalAxis(-dWheel*0.001f, Vector3f.UNIT_Z);
+		model.getCameraNode().getTransform().getRotation().multThis(rot);
 	}
 
 	protected void onMouseButton(int button, boolean buttonState, int x, int y) {
