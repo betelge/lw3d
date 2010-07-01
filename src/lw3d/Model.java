@@ -47,7 +47,7 @@ public class Model {
 	
 	final private Set<Node> simulatedNodes = new HashSet<Node>();
 	
-	public boolean vsync = true;
+	public boolean vsync = false;
 	
 	final public boolean isUseFixedVertexPipeline = false;
 	
@@ -89,8 +89,18 @@ public class Model {
 		ShaderProgram fboShaderProgram = new ShaderProgram(fboShaders);
 		Material defaultMaterial = new Material(shaderProgram);
 		Material fboMaterial = new Material(fboShaderProgram);
-
-		MovableGeometryNode cube = new MovableGeometryNode(cubeMesh, defaultMaterial);
+		
+		Node rootNode = new Node();
+		GeometryNode[] cubes = new GeometryNode[1-1];
+		
+		for(int i = 0; i < cubes.length; i++) {
+			cubes[i] = new GeometryNode(cubeMesh, defaultMaterial);
+			cubes[i].getTransform().getPosition().z = -100 * (float)Math.random() - 5;
+			cubes[i].getTransform().getPosition().x = cubes[i].getTransform().getPosition().z * (0.5f-(float)Math.random());
+			cubes[i].getTransform().getPosition().y = cubes[i].getTransform().getPosition().z * (0.5f-(float)Math.random());
+			
+			rootNode.attach(cubes[i]);
+		}
 		Uniform[] uniforms = new Uniform[1];
 		uniforms[0] = new Uniform("col2", 0f, 1f, 0f, 1f);
 		defaultMaterial.setUniforms(uniforms);
@@ -118,7 +128,6 @@ public class Model {
 		defaultMaterial.addTexture("texture0", texture);
 		fboMaterial.addTexture("source", fboTexture);
 		
-		Node rootNode = new Node();
 		simulatedNodes.add(rootNode);
 		cameraNode = new CameraNode();
 		rootNode.attach(cameraNode);
@@ -129,6 +138,7 @@ public class Model {
 		//renderPasses.add(new QuadRenderPass(fboMaterial));
 		renderPasses.add(new BloomPass(fboMaterial.getTextures().get("source")));
 		
+		MovableGeometryNode cube = new MovableGeometryNode(cubeMesh, defaultMaterial);
 		Node elbow = new Node();
 		
 		rootNode.attach(elbow);		
