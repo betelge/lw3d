@@ -50,6 +50,8 @@ public class Model {
 	public boolean vsync = true;
 	
 	final public boolean isUseFixedVertexPipeline = false;
+	
+	private CameraNode cameraNode;
 
 	public Model() {
 
@@ -118,8 +120,9 @@ public class Model {
 		
 		Node rootNode = new Node();
 		simulatedNodes.add(rootNode);
-		CameraNode cameraNode = new CameraNode();
+		cameraNode = new CameraNode();
 		rootNode.attach(cameraNode);
+		//cameraNode.getTransform().getPosition().z = -1f;
 		
 		// Create render passes
 		renderPasses.add(new SceneRenderPass(rootNode, cameraNode, myFBO));
@@ -145,5 +148,9 @@ public class Model {
 
 	public boolean isUseFixedVertexPipeline() {
 		return isUseFixedVertexPipeline;
+	}
+
+	public CameraNode getCameraNode() {
+		return cameraNode;
 	}
 }

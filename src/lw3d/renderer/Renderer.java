@@ -37,6 +37,10 @@ public class Renderer {
 	TextureManager textureManager;
 	RenderBufferManager renderBufferManager;
 	FBOManager fboManager;
+	
+	// TODO: fix this in a better way
+	// Current camera transform
+	Transform cameraTransform;
 
 	// TODO: Create matrix class?
 	FloatBuffer modelViewMatrix;
@@ -166,8 +170,10 @@ public class Renderer {
 	public void renderSceneNonOpenGL(Node rootNode, CameraNode cameraNode) {
 		backRenderNodes.clear();
 		backRenderTransforms.clear();
+		
+		cameraTransform = cameraNode.getAbsoluteTransform().invert();
 
-		ProcessNode(rootNode, cameraNode.getTransform().invert());
+		ProcessNode(rootNode, new Transform());
 
 		List<GeometryNode> tempRenderNodes = backRenderNodes;
 		List<Transform> tempRenderTransforms = backRenderTransforms;
@@ -351,7 +357,7 @@ public class Renderer {
 
 		if (node instanceof GeometryNode) {
 			backRenderNodes.add((GeometryNode) node);
-			backRenderTransforms.add(currentTransform);
+			backRenderTransforms.add(cameraTransform.mult(currentTransform));
 		}
 
 		Iterator<Node> it = node.getChildren().iterator();

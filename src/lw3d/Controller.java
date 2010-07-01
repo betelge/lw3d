@@ -1,6 +1,9 @@
 package lw3d;
 
 import lw3d.View.State;
+import lw3d.math.Quaternion;
+import lw3d.math.Vector3f;
+import lw3d.renderer.CameraNode;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -74,7 +77,9 @@ public class Controller {
 	}
 
 	protected void onMouseMove(int dX, int dY, int x, int y) {
-
+		Quaternion rot = new Quaternion().fromAngleNormalAxis(-dX*0.01f, Vector3f.UNIT_Y);
+		rot.multThis(new Quaternion().fromAngleNormalAxis(dY*0.01f, Vector3f.UNIT_X));
+		model.getCameraNode().getTransform().getRotation().multThis(rot);
 	}
 
 	protected void onMouseWheel(int dWheel, int x, int y) {
