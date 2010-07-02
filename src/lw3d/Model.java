@@ -2,21 +2,26 @@ package lw3d;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 
+import lw3d.math.Quaternion;
+import lw3d.math.Transform;
 import lw3d.math.Vector3f;
 import lw3d.renderer.CameraNode;
 import lw3d.renderer.FBO;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.GeometryNode;
+import lw3d.renderer.Light;
 import lw3d.renderer.Material;
 import lw3d.renderer.MovableGeometryNode;
 import lw3d.renderer.MovableNode;
@@ -47,6 +52,8 @@ public class Model {
 	
 	final private Set<Node> simulatedNodes = new HashSet<Node>();
 	
+	private LinkedHashSet<Integer> keys = new LinkedHashSet<Integer>();
+	
 	public boolean vsync = false;
 	
 	final public boolean isUseFixedVertexPipeline = false;
@@ -54,8 +61,17 @@ public class Model {
 	private CameraNode cameraNode;
 
 	public Model() {
+		
+		System.out.println("Model creation!");
+		
+		InputStream is = getClass().getResourceAsStream("/untitled.obj");
+		if(is == null)
+			System.out.println("Model cant't load geometry: " + "/untitled.obj");
+		else {
+			System.out.println("Model loads ok");
+		}
 
-		Geometry cubeMesh = GeometryLoader.loadObj(new File("resources/untitled.obj"));
+		Geometry cubeMesh = GeometryLoader.loadObj("/untitled.obj");
 
 		Set<Shader> shaders = new HashSet<Shader>();
 		Set<Shader> fboShaders = new HashSet<Shader>();
@@ -64,21 +80,21 @@ public class Model {
 			shaders
 					.add(new Shader(
 							Shader.Type.VERTEX,
-							StringLoader.loadString(new File("resources/default.vertex"))));
+							StringLoader.loadString("/default.vertex")));
 
 			shaders
 					.add(new Shader(
 							Shader.Type.FRAGMENT,
-							StringLoader.loadString(new File("resources/default.fragment"))));
+							StringLoader.loadString("/default.fragment")));
 			
 			fboShaders
 				.add(new Shader(
 					Shader.Type.VERTEX,
-					StringLoader.loadString(new File("resources/direct.vertex"))));
+					StringLoader.loadString("/direct.vertex")));
 			fboShaders
 				.add(new Shader(
 					Shader.Type.FRAGMENT,
-					StringLoader.loadString(new File("resources/direct.fragment"))));
+					StringLoader.loadString("/direct.fragment")));
 
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -107,7 +123,7 @@ public class Model {
 		
 		Texture texture = null;
 		try {
-			texture = TextureLoader.loadTexture(new File("resources/test.png"));
+			texture = TextureLoader.loadTexture("/test.png");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -141,8 +157,10 @@ public class Model {
 		MovableGeometryNode cube = new MovableGeometryNode(cubeMesh, defaultMaterial);
 		
 		rootNode.attach(cube);
+		
+		rootNode.attach(new Light(new Transform(new Vector3f(3f,3f,-15f), new Quaternion())));
 
-		cube.getTransform().getPosition().z = -5f;
+		cube.getTransform().getPosition().z = -15f;
 		cube.getTransform().getPosition().x = 1f;
 		//cube.getTransform().getPosition().y = -1f;
 		
@@ -168,5 +186,9 @@ public class Model {
 
 	public CameraNode getCameraNode() {
 		return cameraNode;
+	}
+
+	public LinkedHashSet<Integer> getKeys() {
+		return keys;
 	}
 }

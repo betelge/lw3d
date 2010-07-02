@@ -2,6 +2,7 @@ package lw3d.renderer.passes;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,10 +27,10 @@ public class BloomPass extends RenderMultiPass {
 	final int height = 512;
 	final float mipmapLevel = 2f;
 	
-	final File vertexFile = new File("resources/direct.vertex");
-	final File bloomFragmentFile = new File("resources/bloom.fragment");
-	final File clampFragmentFile = new File("resources/clamp.fragment");
-	final File blendFragmentFile = new File("resources/blend.fragment");
+	final String vertexFile = "/direct.vertex";
+	final String bloomFragmentFile = "/bloom.fragment";
+	final String clampFragmentFile = "/clamp.fragment";
+	final String blendFragmentFile = "/blend.fragment";
 
 	
 	FBO[] fbos = new FBO[2];

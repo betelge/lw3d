@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
@@ -13,9 +15,14 @@ import org.lwjgl.BufferUtils;
 import lw3d.renderer.Texture;
 
 public class TextureLoader {
+	
+	static private Object object = new Object();
 
-	static public Texture loadTexture(File file) throws IOException {
-		BufferedImage image = ImageIO.read(file);
+	static public Texture loadTexture(String filename) throws IOException {
+		InputStream is = object.getClass().getResourceAsStream(filename);
+		if(is == null)
+			System.out.println("Cant't load texture: " + filename);
+		BufferedImage image = ImageIO.read(is);
 		DataBuffer data = image.getData().getDataBuffer();
 
 		int dataSize = data.getSize();
@@ -31,5 +38,9 @@ public class TextureLoader {
 				Texture.WrapMode.REPEAT);
 
 		return texture;
+	}
+	
+	public static void setObject(Object givenObject) {
+		object = givenObject;
 	}
 }

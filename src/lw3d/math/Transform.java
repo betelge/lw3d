@@ -10,7 +10,13 @@ public class Transform {
 	}
 
 	public Transform(Transform transform) {
-		this(transform.position, transform.rotation, transform.scale);
+		if( position == null || rotation == null || scale == null) {
+			position = new Vector3f();
+			rotation = new Quaternion();
+			scale = new Vector3f(1f, 1f, 1f);
+		}
+			
+		set(transform);
 	}
 
 	public Transform(Vector3f position, Quaternion rotation) {
@@ -72,6 +78,7 @@ public class Transform {
 	public void invertThis() {
 		position.negateThis();
 		rotation.inverseThis();
+		rotation.mult(position, position);
 	}
 
 	public Transform interpolate(Transform transform, float x) {
@@ -148,6 +155,10 @@ public class Transform {
 		return this.position.equals(((Transform) object).getPosition())
 				&& this.rotation.equals(((Transform) object).getRotation())
 				&& this.scale.equals(((Transform) object).getScale());
+	}
+	
+	public String toString() {
+		return "" + position + ", " + rotation + ", " + scale;
 	}
 
 	public int hashCode() {

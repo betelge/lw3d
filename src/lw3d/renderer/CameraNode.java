@@ -1,5 +1,5 @@
 package lw3d.renderer;
 
-public class CameraNode extends Node {
+public class CameraNode extends MovableNode {
 	
 }

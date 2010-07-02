@@ -6,7 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lw3d.math.Quaternion;
 import lw3d.math.Transform;
+import lw3d.math.Vector3f;
 import lw3d.renderer.ShaderProgram.Shader;
 import lw3d.renderer.managers.FBOManager;
 import lw3d.renderer.managers.GeometryManager;
@@ -46,14 +48,16 @@ public class Renderer {
 	FloatBuffer modelViewMatrix;
 	FloatBuffer perspectiveMatrix;
 	FloatBuffer normalMatrix;
-
+	
 	List<GeometryNode> renderNodes = new ArrayList<GeometryNode>();
 	List<Transform> renderTransforms = new ArrayList<Transform>();
+	Transform lightTransform = new Transform();
 
 	// Function as a "backbuffer" for the procesnode to write to. Are then
 	// swapped with the "front"
 	List<GeometryNode> backRenderNodes = new ArrayList<GeometryNode>();
 	List<Transform> backRenderTransforms = new ArrayList<Transform>();
+	Transform backLightTransform = new Transform();
 
 	public Renderer(float fov, float zNear, float zFar, boolean isUseFixedVertexPipeline) {
 		this.isUseFixedVertexPipeline = isUseFixedVertexPipeline;
@@ -171,16 +175,36 @@ public class Renderer {
 		backRenderNodes.clear();
 		backRenderTransforms.clear();
 		
-		cameraTransform = cameraNode.getAbsoluteTransform().invert();
+		cameraTransform = cameraNode.getAbsoluteTransform();
+		
+		Vector3f camPos = cameraTransform.getPosition().mult(-1f);
+		Quaternion camRot = cameraTransform.getRotation().inverse();
+		
+		//camRot.mult(camPos, camPos);
+		
+		Transform rotationTransform = new Transform(new Vector3f(), camRot);
+		Transform translationTransform = new Transform(camPos, new Quaternion());
+		
+		/*new Transform(camPos, new Quaternion())
+		.mult(new Transform(new Vector3f(), camRot)*/
+		
+		Transform trans = rotationTransform.mult(translationTransform);//.mult(translationTransform);
+		
+		cameraTransform = trans;//new Transform();
 
 		ProcessNode(rootNode, new Transform());
 
 		List<GeometryNode> tempRenderNodes = backRenderNodes;
 		List<Transform> tempRenderTransforms = backRenderTransforms;
+		Transform tempLightTransform = backLightTransform;
+		
 		backRenderNodes = renderNodes;
 		backRenderTransforms = renderTransforms;
+		backLightTransform = lightTransform;
+		
 		renderNodes = tempRenderNodes;
 		renderTransforms = tempRenderTransforms;
+		lightTransform = tempLightTransform;
 	}
 
 	public void renderScene(Node rootNode, CameraNode cameraNode) {
@@ -204,6 +228,7 @@ public class Renderer {
 		int modelViewMatrixLocation = 0;
 		int perspectiveMatrixLocation = 0;
 		int normalMatrixLocation = 0;
+		int lightPosVectorLocation = 0;
 
 		GeometryInfo geometryInfo = null;
 
@@ -266,6 +291,9 @@ public class Renderer {
 				normalMatrixLocation = ARBShaderObjects
 						.glGetUniformLocationARB(shaderProgramHandle,
 								"normalMatrix");
+				lightPosVectorLocation = ARBShaderObjects
+				.glGetUniformLocationARB(shaderProgramHandle,
+						"lightPos");
 			}
 
 			modelViewMatrix.clear();
@@ -280,6 +308,10 @@ public class Renderer {
 			normalMatrix.flip();
 			ARBShaderObjects.glUniformMatrix3ARB(normalMatrixLocation, true,
 					normalMatrix);
+			
+			Vector3f lightPosVector = lightTransform.getPosition();
+			ARBShaderObjects.glUniform3fARB(lightPosVectorLocation,
+					lightPosVector.x, lightPosVector.y, lightPosVector.z);
 
 			// Bind vertex attributes to uniform names
 			if (oldGeometryInfo != geometryInfo
@@ -358,6 +390,11 @@ public class Renderer {
 		if (node instanceof GeometryNode) {
 			backRenderNodes.add((GeometryNode) node);
 			backRenderTransforms.add(cameraTransform.mult(currentTransform));
+		}
+		
+		// TODO: Handle multiple lights
+		if (node instanceof Light) {
+			backLightTransform.set(cameraTransform.mult(currentTransform));
 		}
 
 		Iterator<Node> it = node.getChildren().iterator();

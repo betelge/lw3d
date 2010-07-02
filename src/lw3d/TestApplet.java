@@ -1,6 +1,11 @@
 package lw3d;
 
 import java.applet.Applet;
+import java.io.InputStream;
+
+import lw3d.utils.GeometryLoader;
+import lw3d.utils.StringLoader;
+import lw3d.utils.TextureLoader;
 
 public class TestApplet extends Applet {
 
@@ -20,6 +25,11 @@ public class TestApplet extends Applet {
 	public void start()
 	{
 		System.out.println("Applet start");
+		
+		GeometryLoader.setObject(this);
+		StringLoader.setObject(this);
+		TextureLoader.setObject(this);
+		
 		test.main(new String[0]);
 	}
 

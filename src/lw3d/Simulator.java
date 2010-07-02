@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.lwjgl.Sys;
 
+import lw3d.renderer.CameraNode;
 import lw3d.renderer.Movable;
 import lw3d.renderer.Node;
 
@@ -168,7 +169,12 @@ public class Simulator {
 		 * default:
 		 * 
 		 * } } else
-		 */if (node instanceof Movable) {
+		 */
+		if ( node instanceof CameraNode) {
+			Movable movableNode = (Movable) node;
+			movableNode.getTransform().multThis(movableNode.getMovement());
+		}
+		else if (node instanceof Movable) {
 			Movable movableNode = (Movable) node;
 			movableNode.getTransform().addThis(movableNode.getMovement());
 

@@ -4,11 +4,20 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class StringLoader {
-	public static String loadString(File file)
+	
+	static private Object object = new Object(); 
+	
+	public static String loadString(String filename)
 			throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(file));
+		InputStream is = object.getClass().getResourceAsStream(filename);
+		if(is == null)
+			System.out.println("Cant't load text file: " + filename);
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader reader = new BufferedReader(isr);
 		StringBuilder builder = new StringBuilder();
 		String line = null;
 
@@ -18,5 +27,9 @@ public class StringLoader {
 		reader.close();
 
 		return builder.toString();
+	}
+	
+	public static void setObject(Object givenObject) {
+		object = givenObject;
 	}
 }

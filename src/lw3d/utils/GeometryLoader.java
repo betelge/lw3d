@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream.GetField;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -12,14 +15,17 @@ import java.util.List;
 
 import org.lwjgl.BufferUtils;
 
+import lw3d.Model;
 import lw3d.math.Vector3f;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.Geometry.Attribute;
 import lw3d.renderer.Geometry.Type;
 
 public class GeometryLoader {
+	
+	static private Object object = new Object();
 
-	static public Geometry loadObj(File file) {
+	static public Geometry loadObj(String filename) {
 
 		ArrayList<Vector3f> v = new ArrayList<Vector3f>();
 		ArrayList<Vector3f> vt = new ArrayList<Vector3f>();
@@ -31,7 +37,14 @@ public class GeometryLoader {
 		ArrayList<Float> vn2 = new ArrayList<Float>();
 
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(file));
+			InputStream is = object.getClass().getResourceAsStream(filename);
+			if(is == null)
+				System.out.println("Cant't load geometry: " + filename);
+			else {
+				System.out.println("Geometry reads ok");
+			}
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader br = new BufferedReader(isr);
 
 			while (br.ready()) {
 				String line = br.readLine().trim();
@@ -144,5 +157,9 @@ public class GeometryLoader {
 		Geometry geometry = new Geometry(indexBuffer, attributes);
 
 		return geometry;
+	}
+	
+	public static void setObject(Object givenObject) {
+		object = givenObject;
 	}
 }

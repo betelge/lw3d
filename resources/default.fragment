@@ -3,10 +3,11 @@
 uniform sampler2D texture0;
 uniform vec3 lightPos;
 
+varying vec3 pos;
 varying vec2 tc;
 varying vec3 N;
 
 void main()
 {
-	gl_FragColor = texture2D(texture0, tc) * (0.0 + 1.0*clamp(dot(normalize(N), normalize(vec3(1.0, 1.0, 0.2))), 0.0, 1.0 ));
+	gl_FragColor = texture2D(texture0, tc) * (0.0 + 1.0*clamp(dot(normalize(N), normalize(lightPos-pos)), 0.0, 1.0 ));
 }
