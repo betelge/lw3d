@@ -1,6 +1,8 @@
 package lw3d;
 
 import java.applet.Applet;
+import java.awt.BorderLayout;
+import java.awt.Canvas;
 import java.io.InputStream;
 
 import lw3d.utils.GeometryLoader;
@@ -13,24 +15,27 @@ public class TestApplet extends Applet {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
+	final private boolean fullscreen = false;
+
 	Test test;
-	
-	public void init()
-	{
-		System.out.println("Applet init");
-		test = new Test();
+
+	public void init() {
 	}
-	
-	public void start()
-	{
-		System.out.println("Applet start");
-		
+
+	public void start() {
+		setLayout(new BorderLayout());
+		Canvas displayParent = new Canvas();
+		displayParent.setSize(getWidth(), getHeight());
+		add(displayParent);
+
 		GeometryLoader.setObject(this);
 		StringLoader.setObject(this);
 		TextureLoader.setObject(this);
-		
-		test.main(new String[0]);
+
+		Model model = new Model(displayParent);
+		View view = new View(model);
+		new Controller(model, view);
 	}
 
 }

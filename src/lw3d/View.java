@@ -57,6 +57,7 @@ public class View {
 			
 			// Create the display.
 			try {
+				Display.setParent(model.getDisplayParent());
 				Display.create();
 				Keyboard.create();
 				Mouse.create();

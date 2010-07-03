@@ -1,5 +1,6 @@
 package lw3d;
 
+import java.awt.Canvas;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,11 +59,18 @@ public class Model {
 	
 	final public boolean isUseFixedVertexPipeline = false;
 	
+	// Used to redirect drawing to an applet area
+	final private Canvas displayParent;
+	
 	private CameraNode cameraNode;
-
+	
 	public Model() {
+		this(null);
+	}
+
+	public Model(Canvas displayParent) {
+		this.displayParent = displayParent;
 		
-		System.out.println("Model creation!");
 		
 		InputStream is = getClass().getResourceAsStream("/untitled.obj");
 		if(is == null)
@@ -107,7 +115,7 @@ public class Model {
 		Material fboMaterial = new Material(fboShaderProgram);
 		
 		Node rootNode = new Node();
-		GeometryNode[] cubes = new GeometryNode[20-1];
+		GeometryNode[] cubes = new GeometryNode[1-1];
 		
 		for(int i = 0; i < cubes.length; i++) {
 			cubes[i] = new GeometryNode(cubeMesh, defaultMaterial);
@@ -150,9 +158,9 @@ public class Model {
 		//cameraNode.getTransform().getPosition().z = -1f;
 		
 		// Create render passes
-		renderPasses.add(new SceneRenderPass(rootNode, cameraNode, myFBO));
+		renderPasses.add(new SceneRenderPass(rootNode, cameraNode/*, myFBO*/));
 		//renderPasses.add(new QuadRenderPass(fboMaterial));
-		renderPasses.add(new BloomPass(fboMaterial.getTextures().get("source")));
+		//renderPasses.add(new BloomPass(fboMaterial.getTextures().get("source")));
 		
 		MovableGeometryNode cube = new MovableGeometryNode(cubeMesh, defaultMaterial);
 		
@@ -190,5 +198,9 @@ public class Model {
 
 	public LinkedHashSet<Integer> getKeys() {
 		return keys;
+	}
+
+	public Canvas getDisplayParent() {
+		return displayParent;
 	}
 }

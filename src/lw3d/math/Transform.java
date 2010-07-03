@@ -124,21 +124,21 @@ public class Transform {
 				m[4*i+j] = qm[3*i+j];
 		
 		// Translation
-		m[3] = position.x;
-		m[7] = position.y;
-		m[11] = position.z;
-		m[12] = m[13] = m[14] = 0;
+		m[12] = position.x;
+		m[13] = position.y;
+		m[14] = position.z;
+		m[3] = m[7] = m[11] = 0;
 		m[15] = 1;
 		
 		// Scaling
-		if(scale.x != 1 || scale.y != 1 || scale.z != 1) {
+		/*if(scale.x != 1 || scale.y != 1 || scale.z != 1) {
 			for(int i = 0; i < 3; i++)
 				m[i] *= scale.x;
 			for(int i = 4; i < 7; i++)
 				m[i] *= scale.y;
 			for(int i = 8; i < 11; i++)
 				m[i] *= scale.z;
-		}
+		}*/
 		
 		return m;
 	}

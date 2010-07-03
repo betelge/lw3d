@@ -1,5 +1,7 @@
 package lw3d.renderer;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,6 +29,7 @@ import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.glu.Project;
 
 public class Renderer {
 
@@ -124,6 +127,32 @@ public class Renderer {
 		perspectiveMatrix.put(0f);
 
 		perspectiveMatrix.flip();
+		
+		if(isUseFixedVertexPipeline) {	
+			GL11.glEnable(GL11.GL_LIGHTING);
+
+			FloatBuffer ambientColorBuffer =
+					ByteBuffer.allocateDirect(16).order(ByteOrder.nativeOrder())
+							.asFloatBuffer();
+
+			ambientColorBuffer.put(new float[] { 1f, 1f, 1f, 1f });
+			ambientColorBuffer.flip();
+
+			GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, ambientColorBuffer);
+			
+			// Create a directional light (w=0)
+			Vector3f Light0Position = new Vector3f(1f, 1f, 1f);
+			GL11.glEnable(GL11.GL_LIGHT0);
+			ByteBuffer light0PositionBuffer = ByteBuffer.allocateDirect(4 * 4);
+			light0PositionBuffer.order(ByteOrder.nativeOrder());
+			light0PositionBuffer.putFloat(1f);
+			light0PositionBuffer.putFloat(1f);
+			light0PositionBuffer.putFloat(1f);
+			light0PositionBuffer.putFloat(0f);
+			light0PositionBuffer.flip();
+			GL11.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, light0PositionBuffer
+					.asFloatBuffer());
+		}
 	}
 
 	public void renderQuad(Material material) {
@@ -131,6 +160,12 @@ public class Renderer {
 	}
 
 	public void renderQuad(Material material, FBO fbo) {
+		if(isUseFixedVertexPipeline) {
+			GL11.glMatrixMode(GL11.GL_PROJECTION);
+			GL11.glLoadIdentity();
+			GL11.glMatrixMode(GL11.GL_MODELVIEW);
+			GL11.glLoadIdentity();
+		}
 
 		// Bind FBO
 		bindFBO(fbo);
@@ -231,6 +266,12 @@ public class Renderer {
 		int lightPosVectorLocation = 0;
 
 		GeometryInfo geometryInfo = null;
+		
+		if(isUseFixedVertexPipeline) {
+			GL11.glMatrixMode(GL11.GL_PROJECTION);
+			GL11.glLoadMatrix(perspectiveMatrix);
+			GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		}
 
 		// Bind FBO
 		bindFBO(fbo);
@@ -299,29 +340,34 @@ public class Renderer {
 			modelViewMatrix.clear();
 			modelViewMatrix.put(transform.toMatrix4());
 			modelViewMatrix.flip();
-			ARBShaderObjects.glUniformMatrix4ARB(modelViewMatrixLocation, true,
-					modelViewMatrix);
-			ARBShaderObjects.glUniformMatrix4ARB(perspectiveMatrixLocation,
-					false, perspectiveMatrix);
-			normalMatrix.clear();
-			normalMatrix.put(transform.getRotation().toMatrix3());
-			normalMatrix.flip();
-			ARBShaderObjects.glUniformMatrix3ARB(normalMatrixLocation, true,
-					normalMatrix);
+			if(!isUseFixedVertexPipeline) {
+				ARBShaderObjects.glUniformMatrix4ARB(modelViewMatrixLocation, false,
+						modelViewMatrix);
+				ARBShaderObjects.glUniformMatrix4ARB(perspectiveMatrixLocation,
+						false, perspectiveMatrix);
+				normalMatrix.clear();
+				normalMatrix.put(transform.getRotation().toMatrix3());
+				normalMatrix.flip();
+				ARBShaderObjects.glUniformMatrix3ARB(normalMatrixLocation, false,
+						normalMatrix);
+				
+				// Bind vertex attributes to uniform names
+				if (oldGeometryInfo != geometryInfo
+						|| oldShaderProgramHandle != shaderProgramHandle)
+					bindAttributes(shaderProgramHandle, geometryInfo.attributeNames);
+			} else
+				GL11.glLoadMatrix(modelViewMatrix);
+
 			
 			Vector3f lightPosVector = lightTransform.getPosition();
 			ARBShaderObjects.glUniform3fARB(lightPosVectorLocation,
 					lightPosVector.x, lightPosVector.y, lightPosVector.z);
 
-			// Bind vertex attributes to uniform names
-			if (oldGeometryInfo != geometryInfo
-					|| oldShaderProgramHandle != shaderProgramHandle)
-				bindAttributes(shaderProgramHandle, geometryInfo.attributeNames);
-
+			
 			// Draw
 			GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
 					GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
-
+			
 			oldGeometry = geometry;
 			oldGeometryInfo = geometryInfo;
 			oldTextures = textures;

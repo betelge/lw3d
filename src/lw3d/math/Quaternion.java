@@ -258,15 +258,15 @@ public class Quaternion
 		float[] m = new float[9];
 		
 		m[0] = 1 - 2 * (y*y + z*z);
-		m[3] = 2 * (x*y + z*w);
-		m[6] = 2 * (x*z - y*w);
+		m[1] = 2 * (x*y + z*w);
+		m[2] = 2 * (x*z - y*w);
 		
-		m[1] = 2 * (x*y - z*w);
+		m[3] = 2 * (x*y - z*w);
 		m[4] = 1 - 2* (x*x + z*z);
-		m[7] = 2 * (y*z + x*w);
+		m[5] = 2 * (y*z + x*w);
 		
-		m[2] = 2 * (x*z + y*w);
-		m[5] = 2 * (y*z - x*w);
+		m[6] = 2 * (x*z + y*w);
+		m[7] = 2 * (y*z - x*w);
 		m[8] = 1 - 2 * (x*x + y*y);
 		
 		return m;

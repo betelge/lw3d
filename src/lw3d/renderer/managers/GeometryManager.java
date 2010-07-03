@@ -17,16 +17,17 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.ARBVertexShader;
+import org.lwjgl.opengl.GL11;
 
 public class GeometryManager {
-	
+
 	final private boolean isUseFixedVertexPipeline;
 
 	private int indexVBOHandle;
 	private int dataVBOHandle;
 	private int indexOffset = 0;
 	private int dataOffset = 0;
-	
+
 	static public Geometry QUAD;
 
 	public class GeometryInfo {
@@ -36,11 +37,12 @@ public class GeometryManager {
 		public int indexOffset;
 
 		public int count;
-		
+
 		// TODO: fix mode enum
-		/*public enum Mode {
-			TRIANGLES(GL11.GL_TRIANGLES), QUADS(GL11.GL_QUADS); // ...
-		}*/
+		/*
+		 * public enum Mode { TRIANGLES(GL11.GL_TRIANGLES),
+		 * QUADS(GL11.GL_QUADS); // ... }
+		 */
 
 		public String[] attributeNames;
 	}
@@ -49,7 +51,7 @@ public class GeometryManager {
 
 	public GeometryManager(boolean isUseFixedVertexPipeline) {
 		this.isUseFixedVertexPipeline = isUseFixedVertexPipeline;
-		
+
 		IntBuffer buff = BufferUtils.createIntBuffer(1);
 		ARBVertexBufferObject.glGenBuffersARB(buff);
 		indexVBOHandle = buff.get(0);
@@ -67,35 +69,55 @@ public class GeometryManager {
 		ARBVertexBufferObject.glBufferDataARB(
 				ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 4 * 1024 * 1024,
 				ARBVertexBufferObject.GL_STATIC_DRAW_ARB);
-		
+
 		// Initialize the QUAD
 		IntBuffer indices = BufferUtils.createIntBuffer(4);
-		for(int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++)
 			indices.put(i);
 		indices.flip();
 		Geometry.Attribute at = new Geometry.Attribute();
 		at.name = "position";
 		at.size = 3;
 		at.type = Geometry.Type.FLOAT;
-		at.buffer = BufferUtils.createFloatBuffer(3*4);
+		at.buffer = BufferUtils.createFloatBuffer(3 * 4);
 		((FloatBuffer) at.buffer).put(-1);
 		((FloatBuffer) at.buffer).put(-1);
 		((FloatBuffer) at.buffer).put(0);
-		
+
 		((FloatBuffer) at.buffer).put(1);
 		((FloatBuffer) at.buffer).put(-1);
 		((FloatBuffer) at.buffer).put(0);
-		
+
 		((FloatBuffer) at.buffer).put(1);
 		((FloatBuffer) at.buffer).put(1);
 		((FloatBuffer) at.buffer).put(0);
-		
+
 		((FloatBuffer) at.buffer).put(-1);
 		((FloatBuffer) at.buffer).put(1);
 		((FloatBuffer) at.buffer).put(0);
 		at.buffer.flip();
+		
+		Geometry.Attribute at2 = new Geometry.Attribute();
+		at2.name = "textureCoord";
+		at2.size = 2;
+		at2.type = Geometry.Type.FLOAT;
+		at2.buffer = BufferUtils.createFloatBuffer(2 * 4);
+		((FloatBuffer) at2.buffer).put(0);
+		((FloatBuffer) at2.buffer).put(0);
+
+		((FloatBuffer) at2.buffer).put(1);
+		((FloatBuffer) at2.buffer).put(0);
+
+		((FloatBuffer) at2.buffer).put(1);
+		((FloatBuffer) at2.buffer).put(1);
+
+		((FloatBuffer) at2.buffer).put(0);
+		((FloatBuffer) at2.buffer).put(1);
+		at2.buffer.flip();
+		
 		List<Geometry.Attribute> lat = new ArrayList<Geometry.Attribute>();
 		lat.add(at);
+		lat.add(at2);
 		QUAD = new Geometry(indices, lat);
 	}
 
@@ -162,11 +184,12 @@ public class GeometryManager {
 			// Set and update the index VBO offset
 			geometryInfo.indexOffset = indexOffset;
 			indexOffset += geometry.getIndices().capacity();
-			
+
 			geometryInfo.count = geometry.getIndices().capacity();
 
-			geometryInfo.attributeNames = new String[geometry.getAttributes().size()];
-			
+			geometryInfo.attributeNames = new String[geometry.getAttributes()
+					.size()];
+
 			// Iterate through the attributes
 			Iterator<Geometry.Attribute> it = geometry.getAttributes()
 					.iterator();
@@ -190,14 +213,31 @@ public class GeometryManager {
 				}
 
 				// Bind the attribute to the VAO
-				ARBVertexShader.glEnableVertexAttribArrayARB(i);
-				ARBVertexShader.glVertexAttribPointerARB(i,
-						geometryAttribute.size, geometryAttribute.type
-								.getType(), geometryAttribute.normalized, 0,
-						dataOffset);
-				
+				if (!isUseFixedVertexPipeline) {
+					ARBVertexShader.glEnableVertexAttribArrayARB(i);
+					ARBVertexShader.glVertexAttribPointerARB(i,
+							geometryAttribute.size, geometryAttribute.type
+									.getType(), geometryAttribute.normalized,
+							0, dataOffset);
+
+				} else {
+					if (geometryAttribute.name.equals("position")) {
+						GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+						GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, dataOffset);
+					}
+					else if (geometryAttribute.name.equals("textureCoord")) {
+						GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+						GL11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, dataOffset);
+					}
+					else if (geometryAttribute.name.equals("normal")) {
+						GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
+						GL11.glNormalPointer(GL11.GL_FLOAT, 0, dataOffset);
+					}
+					System.out.println(geometryAttribute.name);
+				}
+
 				geometryInfo.attributeNames[i] = geometryAttribute.name;
-				
+
 				i++;
 
 				// Update the data VBO offset
@@ -206,7 +246,7 @@ public class GeometryManager {
 			}
 
 			geometryInfos.put(geometry, geometryInfo);
-			
+
 			// Unbind the VAO
 			ARBVertexArrayObject.glBindVertexArray(0);
 
