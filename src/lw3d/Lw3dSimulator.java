@@ -9,7 +9,7 @@ import lw3d.renderer.CameraNode;
 import lw3d.renderer.Movable;
 import lw3d.renderer.Node;
 
-public class Simulator {
+public class Lw3dSimulator {
 
 	final private Set<Node> nodes;
 
@@ -49,7 +49,7 @@ public class Simulator {
 		}
 	};
 
-	public Simulator(Set<Node> nodes) {
+	public Lw3dSimulator(Set<Node> nodes) {
 		this.nodes = nodes;
 		System.out.println(nodes);
 		simulatorThread = new Thread(simulatorRunnable, "simulatorThread");
@@ -177,7 +177,10 @@ public class Simulator {
 		else if (node instanceof Movable) {
 			Movable movableNode = (Movable) node;
 			movableNode.getTransform().addThis(movableNode.getMovement());
-
+			movableNode.getNextTransform().set(movableNode.getTransform());
+			movableNode.getNextTransform().addThis(movableNode.getMovement());
+			movableNode.setLastTime(time);
+			movableNode.setNextTime(time + timeStep);
 
 			/*
 			 * Transform localTransform = ((Movable) node).getLocalTransform();

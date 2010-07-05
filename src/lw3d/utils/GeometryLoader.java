@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.lwjgl.BufferUtils;
 
-import lw3d.Model;
+import lw3d.Lw3dModel;
 import lw3d.math.Vector3f;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.Geometry.Attribute;

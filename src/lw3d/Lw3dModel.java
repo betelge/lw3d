@@ -47,7 +47,7 @@ import lw3d.utils.GeometryLoader;
 import lw3d.utils.StringLoader;
 import lw3d.utils.TextureLoader;
 
-public class Model {
+public class Lw3dModel {
 	
 	private List<RenderPass> renderPasses = new ArrayList<RenderPass>();
 	
@@ -64,11 +64,11 @@ public class Model {
 	
 	private CameraNode cameraNode;
 	
-	public Model() {
+	public Lw3dModel() {
 		this(null);
 	}
 
-	public Model(Canvas displayParent) {
+	public Lw3dModel(Canvas displayParent) {
 		this.displayParent = displayParent;
 		
 		
@@ -141,7 +141,6 @@ public class Model {
 		Texture fboTexture = new Texture(null, TextureType.TEXTURE_2D,
 				Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight(),
 				TexelType.UBYTE, Format.GL_RGBA8, Filter.LINEAR, WrapMode.CLAMP);
-		//fboTexture.setMipmapLevel(0f);
 		
 		RenderBuffer depthBuffer = new RenderBuffer(Format.GL_DEPTH_COMPONENT,
 				Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
@@ -151,7 +150,6 @@ public class Model {
 		
 		defaultMaterial.addTexture("texture0", texture);
 		fboMaterial.addTexture("source", fboTexture);
-		
 		simulatedNodes.add(rootNode);
 		cameraNode = new CameraNode();
 		rootNode.attach(cameraNode);

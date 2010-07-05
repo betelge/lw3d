@@ -20,6 +20,7 @@ import lw3d.renderer.managers.TextureManager;
 import lw3d.renderer.managers.GeometryManager.GeometryInfo;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.Sys;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ARBVertexShader;
@@ -61,6 +62,8 @@ public class Renderer {
 	List<GeometryNode> backRenderNodes = new ArrayList<GeometryNode>();
 	List<Transform> backRenderTransforms = new ArrayList<Transform>();
 	Transform backLightTransform = new Transform();
+	
+	long time = 0;
 
 	public Renderer(float fov, float zNear, float zFar, boolean isUseFixedVertexPipeline) {
 		this.isUseFixedVertexPipeline = isUseFixedVertexPipeline;
@@ -226,6 +229,8 @@ public class Renderer {
 		Transform trans = rotationTransform.mult(translationTransform);//.mult(translationTransform);
 		
 		cameraTransform = trans;//new Transform();
+		
+		time = Sys.getTime();
 
 		ProcessNode(rootNode, new Transform());
 
@@ -430,9 +435,21 @@ public class Renderer {
 	}
 
 	private void ProcessNode(Node node, Transform transform) {
-
-		Transform currentTransform = transform.mult(node.getTransform());
-
+		
+		Transform currentTransform = null;
+		if(node instanceof Movable) {
+			Movable movable = (Movable) node;
+			float ratio = 0;
+			if(movable.getNextTime() != movable.getLastTime())
+				ratio = (time - movable.getLastTime()) /
+								(movable.getNextTime() - movable.getLastTime());
+			currentTransform = transform.mult(
+					movable.getTransform().interpolate(
+							movable.getNextTransform(), ratio));
+		} else {
+			currentTransform = transform.mult(node.getTransform());
+		}
+		
 		if (node instanceof GeometryNode) {
 			backRenderNodes.add((GeometryNode) node);
 			backRenderTransforms.add(cameraTransform.mult(currentTransform));

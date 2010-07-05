@@ -9,7 +9,7 @@ import lw3d.utils.GeometryLoader;
 import lw3d.utils.StringLoader;
 import lw3d.utils.TextureLoader;
 
-public class TestApplet extends Applet {
+public class ExampleApplet extends Applet {
 
 	/**
 	 * 
@@ -18,7 +18,7 @@ public class TestApplet extends Applet {
 
 	final private boolean fullscreen = false;
 
-	Test test;
+	Example test;
 
 	public void init() {
 	}
@@ -33,9 +33,9 @@ public class TestApplet extends Applet {
 		StringLoader.setObject(this);
 		TextureLoader.setObject(this);
 
-		Model model = new Model(displayParent);
-		View view = new View(model);
-		new Controller(model, view);
+		Lw3dModel model = new Lw3dModel(displayParent);
+		//Lw3dView view = new Lw3dView(model);
+		//new Lw3dController(model, view);
 	}
 
 }

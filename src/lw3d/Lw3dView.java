@@ -18,9 +18,9 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
-public class View {
+public class Lw3dView {
 
-	private Model model;
+	private Lw3dModel model;
 
 	public enum State {
 		INIT, LOOP, PAUSE, CLOSING
@@ -35,7 +35,7 @@ public class View {
 	private long lastFPSTime;
 	private int frames = 0;
 
-	public View(Model model) {
+	public Lw3dView(Lw3dModel model) {
 		this.model = model;
 		
 		// Try to set vsync on/off
