@@ -11,31 +11,60 @@ import lw3d.renderer.Node;
 
 public class Lw3dSimulator {
 
-	final private Set<Node> nodes;
+	private Lw3dSimulation simulation;
 
-	long time;
-	int timeStep = 50;
-	int timeAccumulator = 0;
+	private Set<Node> nodes;
+
+	private long time;
+	private int timeAccumulator = 0;
+
+	// Time passed to the simulation. Doesn't increase while the sim is paused.
+	private long simTime = 0;
+
+	private SimState simState = SimState.STOP;
+
+	public void setSimulation(Lw3dSimulation simulation) {
+		this.simulation = simulation;
+	}
+
+	public enum SimState {
+		STOP, RUN, PAUSE, EXIT;
+	}
 
 	Thread simulatorThread;
-	boolean isRunning = false;
 	private Runnable simulatorRunnable = new Runnable() {
 		@Override
 		public void run() {
 
 			time = Sys.getTime();
-			while (isRunning) {
+			while (simState != SimState.EXIT) {
+
+				while (simState == SimState.STOP)
+					Thread.yield();
+
 				long newTime = Sys.getTime();
 				timeAccumulator += newTime - time;
 				time = newTime;
-								
-				// TODO: check if the sim runs slow
-				if (timeAccumulator >= timeStep) {
-					timeAccumulator -= timeStep;
 
-					Iterator<Node> it = nodes.iterator();
-					while (it.hasNext()) {
-						processNode(it.next());
+				if (simulation != null && simState == SimState.RUN) {
+					// TODO: check if the sim runs slow
+					long timeStep = simulation.getTimeStep();
+					if (timeAccumulator >= timeStep) {
+						timeAccumulator -= timeStep;
+						
+						simulation.setTime(simTime);
+						simulation.setRealTime(time - timeAccumulator);
+
+						simulation.beforeProcessingNodes();
+
+						Iterator<Node> it = nodes.iterator();
+						while (it.hasNext()) {
+							Node node = it.next();
+							simulation.preProcessNode(node);
+							simulation.processNode(node);
+						}
+						
+						simTime += timeStep;
 					}
 				}
 
@@ -58,153 +87,11 @@ public class Lw3dSimulator {
 
 	public void start() {
 		time = Sys.getTime();
-		isRunning = true;
+		simState = SimState.RUN;
 	}
 
 	public void exit() {
-		isRunning = false;
-	}
-
-	private void processNode(Node node) {
-		/*
-		 * if (node instanceof KeyFramable) { KeyFramable keyFramed =
-		 * ((KeyFramable) node); long animationTime = time -
-		 * keyFramed.getTimeOffset(); long time1, time2;
-		 * 
-		 * keyFramed.setCurrentTime(time); keyFramed.setNextTime(time +
-		 * timeStep);
-		 * 
-		 * float interpolationValue;
-		 * 
-		 * switch (keyFramed.getTimingType()) { case CLAMP: { if (animationTime
-		 * <= keyFramed.getKeyFrames().firstKey()) { animationTime =
-		 * keyFramed.getKeyFrames().firstKey() + 1; } else if (animationTime >
-		 * keyFramed.getKeyFrames().lastKey()) { animationTime =
-		 * keyFramed.getKeyFrames().lastKey();
-		 * 
-		 * }
-		 * 
-		 * time1 = keyFramed.getKeyFrames().subMap(0l, animationTime)
-		 * .lastKey(); time2 = keyFramed.getKeyFrames().tailMap(animationTime)
-		 * .firstKey();
-		 * 
-		 * if (time2 - time1 <= 0) { interpolationValue = 0; } else {
-		 * interpolationValue = (animationTime - time1) / (float) (time2 -
-		 * time1); }
-		 * 
-		 * keyFramed.setLocalTransform(keyFramed.getKeyFrames().get(time1)
-		 * .interpolate( keyFramed.getKeyFrames().get(time2), (animationTime -
-		 * time1) / (float) (time2 - time1)));
-		 * 
-		 * animationTime = time - keyFramed.getTimeOffset() + timeStep; if
-		 * (animationTime <= keyFramed.getKeyFrames().firstKey()) {
-		 * animationTime = keyFramed.getKeyFrames().firstKey() + 1; } else if
-		 * (animationTime > keyFramed.getKeyFrames().lastKey()) { animationTime
-		 * = keyFramed.getKeyFrames().lastKey();
-		 * 
-		 * }
-		 * 
-		 * time1 = keyFramed.getKeyFrames().subMap(0l, animationTime)
-		 * .lastKey(); time2 = keyFramed.getKeyFrames().tailMap(animationTime)
-		 * .firstKey();
-		 * 
-		 * if (time2 - time1 <= 0) { interpolationValue = 0; } else {
-		 * interpolationValue = (animationTime - time1) / (float) (time2 -
-		 * time1); }
-		 * 
-		 * keyFramed.setNextLocalTransform(keyFramed.getKeyFrames().get(
-		 * time1).interpolate(keyFramed.getKeyFrames().get(time2),
-		 * interpolationValue)); keyFramed.getLastLocalTransform().set(
-		 * keyFramed.getLocalTransform());
-		 * 
-		 * break; }
-		 * 
-		 * case REPEAT: { animationTime -= keyFramed.getKeyFrames().firstKey();
-		 * animationTime %= (keyFramed.getKeyFrames().lastKey() - keyFramed
-		 * .getKeyFrames().firstKey()); animationTime +=
-		 * keyFramed.getKeyFrames().firstKey();
-		 * 
-		 * if (animationTime <= keyFramed.getKeyFrames().firstKey()) {
-		 * animationTime = keyFramed.getKeyFrames().firstKey() + 1; }
-		 * 
-		 * time1 = keyFramed.getKeyFrames().subMap(0l, animationTime)
-		 * .lastKey(); time2 = keyFramed.getKeyFrames().tailMap(animationTime)
-		 * .firstKey();
-		 * 
-		 * if (time2 - time1 <= 0) { interpolationValue = 0; } else {
-		 * interpolationValue = (animationTime - time1) / (float) (time2 -
-		 * time1); }
-		 * 
-		 * keyFramed.setLocalTransform(keyFramed.getKeyFrames().get(time1)
-		 * .interpolate( keyFramed.getKeyFrames().get(time2), (animationTime -
-		 * time1) / (float) (time2 - time1)));
-		 * 
-		 * animationTime = time - keyFramed.getTimeOffset() + timeStep;
-		 * animationTime -= keyFramed.getKeyFrames().firstKey(); animationTime
-		 * %= (keyFramed.getKeyFrames().lastKey() - keyFramed
-		 * .getKeyFrames().firstKey()); animationTime +=
-		 * keyFramed.getKeyFrames().firstKey();
-		 * 
-		 * if (animationTime <= keyFramed.getKeyFrames().firstKey()) {
-		 * animationTime = keyFramed.getKeyFrames().firstKey() + 1; } else if
-		 * (animationTime > keyFramed.getKeyFrames().lastKey()) { animationTime
-		 * = keyFramed.getKeyFrames().lastKey();
-		 * 
-		 * }
-		 * 
-		 * time1 = keyFramed.getKeyFrames().subMap(0l, animationTime)
-		 * .lastKey(); time2 = keyFramed.getKeyFrames().tailMap(animationTime)
-		 * .firstKey();
-		 * 
-		 * if (time2 - time1 <= 0) { interpolationValue = 0; } else {
-		 * interpolationValue = (animationTime - time1) / (float) (time2 -
-		 * time1); }
-		 * 
-		 * keyFramed.setNextLocalTransform(keyFramed.getKeyFrames().get(
-		 * time1).interpolate(keyFramed.getKeyFrames().get(time2),
-		 * (animationTime - time1) / (float) (time2 - time1)));
-		 * keyFramed.getLastLocalTransform().set(
-		 * keyFramed.getLocalTransform()); break; }
-		 * 
-		 * default:
-		 * 
-		 * } } else
-		 */
-		if ( node instanceof CameraNode) {
-			Movable movableNode = (Movable) node;
-			movableNode.getTransform().multThis(movableNode.getMovement());
-		}
-		else if (node instanceof Movable) {
-			Movable movableNode = (Movable) node;
-			movableNode.getTransform().addThis(movableNode.getMovement());
-			movableNode.getNextTransform().set(movableNode.getTransform());
-			movableNode.getNextTransform().addThis(movableNode.getMovement());
-			movableNode.setLastTime(time);
-			movableNode.setNextTime(time + timeStep);
-
-			/*
-			 * Transform localTransform = ((Movable) node).getLocalTransform();
-			 * if (((Movable) node).getLocalTransform().equals( ((Movable)
-			 * node).getLastLocalTransform())) { localTransform.set(((Movable)
-			 * node).getNextLocalTransform()); } else {
-			 * localTransform.multiplyThis(((Movable) node).getMovement()); }
-			 * 
-			 * ((Movable) node).getLastLocalTransform().set(localTransform);
-			 * 
-			 * Transform nextLocalTransform = ((Movable) node)
-			 * .getNextLocalTransform(); nextLocalTransform.set(localTransform);
-			 * nextLocalTransform.multiplyThis(((Movable) node).getMovement());
-			 * 
-			 * ((Movable) node).setCurrentTime(time); ((Movable)
-			 * node).setNextTime(time + timeStep);
-			 */
-		}
-
-		Iterator<Node> iterator = node.getChildren().iterator();
-
-		while (iterator.hasNext()) {
-			processNode(iterator.next());
-		}
+		simState = SimState.EXIT;
 	}
 
 }

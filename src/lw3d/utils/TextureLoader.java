@@ -34,7 +34,7 @@ public class TextureLoader {
 
 		Texture texture = new Texture(buffer, Texture.TextureType.TEXTURE_2D,
 				image.getWidth(), image.getHeight(), Texture.TexelType.UBYTE,
-				Texture.Format.GL_RGB8, Texture.Filter.LINEAR_MIPMAP_NEAREST,
+				Texture.Format.GL_COMPRESSED_RGB, Texture.Filter.LINEAR_MIPMAP_NEAREST,
 				Texture.WrapMode.REPEAT);
 
 		return texture;

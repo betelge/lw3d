@@ -9,15 +9,13 @@ public abstract class Lw3dController {
 	private Lw3dModel model;
 	private Lw3dView view;
 
-	Lw3dSimulator simulator;
+	protected Lw3dSimulator simulator;
 
 	Thread inputThread;
 	private boolean isRunning = true;
 	private Runnable inputRunnable = new Runnable() {
 		@Override
 		public void run() {
-
-			simulator.start();
 
 			while (isRunning) {
 
@@ -67,7 +65,6 @@ public abstract class Lw3dController {
 		this.view = view;
 
 		simulator = new Lw3dSimulator(model.getSimulatedNodes());
-		simulator.start();
 
 		inputThread = new Thread(inputRunnable, "inputThread");
 		inputThread.start();

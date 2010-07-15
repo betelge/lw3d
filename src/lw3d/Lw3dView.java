@@ -65,6 +65,18 @@ public class Lw3dView {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			if(model.getDisplayParent() != null) {
+				model.setDrawWidth(
+						model.getDisplayParent().getWidth());
+				model.setDrawHeight(
+						model.getDisplayParent().getHeight());
+			} else {
+				model.setDrawWidth(
+						Display.getDisplayMode().getWidth());
+				model.setDrawHeight(
+						Display.getDisplayMode().getHeight());
+			}
 						
 			renderer = new Renderer(45f, 0.01f, 1000f,
 					model.isUseFixedVertexPipeline());
@@ -75,7 +87,9 @@ public class Lw3dView {
 			while (state != State.CLOSING) {
 
 				List<RenderPass> renderPasses = model.getRenderPasses();
-				processRenderPasses(renderPasses);
+				synchronized (renderPasses) {
+					processRenderPasses(renderPasses);
+				}
 
 				Display.update();
 				Thread.yield();

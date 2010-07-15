@@ -436,6 +436,8 @@ public class Renderer {
 
 	private void ProcessNode(Node node, Transform transform) {
 		
+		//System.out.println("Renderer processing node: " + node);
+		
 		Transform currentTransform = null;
 		if(node instanceof Movable) {
 			Movable movable = (Movable) node;
@@ -459,10 +461,11 @@ public class Renderer {
 		if (node instanceof Light) {
 			backLightTransform.set(cameraTransform.mult(currentTransform));
 		}
-
-		Iterator<Node> it = node.getChildren().iterator();
-		while (it.hasNext()) {
-			ProcessNode(it.next(), currentTransform);
+		synchronized (node) {
+			Iterator<Node> it = node.getChildren().iterator();
+				while (it.hasNext()) {
+				ProcessNode(it.next(), currentTransform);
+			}
 		}
 	}
 

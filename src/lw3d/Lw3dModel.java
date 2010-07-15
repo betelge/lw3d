@@ -53,10 +53,32 @@ public class Lw3dModel {
 	
 	protected final Set<Node> simulatedNodes = new HashSet<Node>();
 	
+	public void setCameraNode(CameraNode cameraNode) {
+		this.cameraNode = cameraNode;
+	}
+
 	private LinkedHashSet<Integer> keys = new LinkedHashSet<Integer>();
 	
 	public boolean vsync = false;
 	
+	private int drawWidth, drawHeight;
+	
+	public int getDrawWidth() {
+		return drawWidth;
+	}
+
+	public void setDrawWidth(int drawWidth) {
+		this.drawWidth = drawWidth;
+	}
+
+	public int getDrawHeight() {
+		return drawHeight;
+	}
+
+	public void setDrawHeight(int drawHeight) {
+		this.drawHeight = drawHeight;
+	}
+
 	final public boolean isUseFixedVertexPipeline = false;
 	
 	// Used to redirect drawing to an applet area

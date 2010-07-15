@@ -131,14 +131,14 @@ public class Transform {
 		m[15] = 1;
 		
 		// Scaling
-		/*if(scale.x != 1 || scale.y != 1 || scale.z != 1) {
+		if(scale.x != 1f || scale.y != 1f || scale.z != 1f) {
 			for(int i = 0; i < 3; i++)
 				m[i] *= scale.x;
 			for(int i = 4; i < 7; i++)
 				m[i] *= scale.y;
 			for(int i = 8; i < 11; i++)
 				m[i] *= scale.z;
-		}*/
+		}
 		
 		return m;
 	}

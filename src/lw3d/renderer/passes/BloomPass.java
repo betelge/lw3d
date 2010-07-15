@@ -1,12 +1,8 @@
 package lw3d.renderer.passes;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.lwjgl.opengl.Display;
 
 import lw3d.renderer.FBO;
 import lw3d.renderer.Material;
@@ -49,11 +45,11 @@ public class BloomPass extends RenderMultiPass {
 	ShaderProgram clampShaderProgram;
 	ShaderProgram blendShaderProgram;
 	
-	public BloomPass(Texture texture) {
-		this(texture, null);
+	public BloomPass(Texture texture, int width, int height) {
+		this(texture, width, height, null);
 	}
 
-	public BloomPass(Texture texture, FBO fbo) {
+	public BloomPass(Texture texture, int width, int height, FBO fbo) {
 		setFbo(fbo);
 		
 		try {
