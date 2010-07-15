@@ -87,6 +87,9 @@ public class FBOManager {
 						.getTextureHandle((Texture) fbo.getAttachables()[i]));
 				EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
 			}
+			if (fbo.getAttachables()[i] instanceof RenderBuffer)
+				EXTFramebufferObject.glBindRenderbufferEXT(EXTFramebufferObject.GL_RENDERBUFFER_EXT, renderBufferManager
+						.getRenderBufferHandle((RenderBuffer) fbo.getAttachables()[i]));
 		}
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 	}
