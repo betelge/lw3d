@@ -80,7 +80,6 @@ public class TextureManager {
 		EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
 
 		textureHandles.put(texture, textureHandle);
-
 		return true;
 	}
 

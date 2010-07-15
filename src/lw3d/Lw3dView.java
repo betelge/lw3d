@@ -37,12 +37,17 @@ public class Lw3dView {
 
 	public Lw3dView(Lw3dModel model) {
 		this.model = model;
+		state = State.INIT;
 		
 		// Try to set vsync on/off
 		Display.setVSyncEnabled(model.vsync);
 
 		openGLThread = new Thread(openGLRunnable, "OpenGL");
 		openGLThread.start();
+		
+		// Wait until the view is initialized
+		while(state == State.INIT)
+			Thread.yield();
 	}
 	
 	private final Runnable nonOpenGLRunnable = new Runnable() {
@@ -53,7 +58,6 @@ public class Lw3dView {
 
 	private final Runnable openGLRunnable = new Runnable() {
 		public void run() {
-			state = State.INIT;
 			
 			// Create the display.
 			try {

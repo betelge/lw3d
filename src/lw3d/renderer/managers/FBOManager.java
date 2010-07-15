@@ -50,9 +50,11 @@ public class FBOManager {
 		if (fbo.getDepthBuffer() != null)
 			attach(EXTFramebufferObject.GL_DEPTH_ATTACHMENT_EXT, fbo
 					.getDepthBuffer());
+		else System.out.println("No depth buffer.");
 		if (fbo.getStencilBuffer() != null)
 			attach(EXTFramebufferObject.GL_STENCIL_ATTACHMENT_EXT, fbo
 					.getStencilBuffer());
+		else System.out.println("No stencil buffer.");
 		
 		FBOHandles.put(fbo, handle);
 

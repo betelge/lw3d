@@ -35,8 +35,10 @@ public class Node {
 	}
 
 	public void attach(Node node) {
-		children.add(node);
-		node.parent = this;
+		synchronized (this) {
+			children.add(node);
+			node.parent = this;
+		}
 	}
 
 	public void detachFromParent() {
