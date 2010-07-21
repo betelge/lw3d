@@ -315,7 +315,8 @@ public class Renderer {
 			// Bind textures
 			Map<String, Texture> textures = geometryNode.getMaterial()
 					.getTextures();
-			if (oldTextures != textures) {
+			if (oldTextures != textures
+					|| oldShaderProgramHandle != shaderProgramHandle) {
 				bindTextures(shaderProgramHandle, textures);
 			}
 

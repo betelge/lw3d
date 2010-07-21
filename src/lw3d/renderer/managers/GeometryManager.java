@@ -60,7 +60,7 @@ public class GeometryManager {
 				indexVBOHandle);
 		ARBVertexBufferObject.glBufferDataARB(
 				ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB,
-				4 * 1024 * 1024, ARBVertexBufferObject.GL_STATIC_DRAW_ARB);
+				1 * 1024 * 1024, ARBVertexBufferObject.GL_STATIC_DRAW_ARB);
 
 		ARBVertexBufferObject.glGenBuffersARB(buff);
 		dataVBOHandle = buff.get(0);
@@ -183,7 +183,7 @@ public class GeometryManager {
 
 			// Set and update the index VBO offset
 			geometryInfo.indexOffset = indexOffset;
-			indexOffset += geometry.getIndices().capacity();
+			indexOffset += geometry.getIndices().capacity() * 4;
 
 			geometryInfo.count = geometry.getIndices().capacity();
 

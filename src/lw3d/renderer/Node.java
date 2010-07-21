@@ -29,7 +29,7 @@ public class Node {
 	
 	public Transform getAbsoluteTransform(){
 		if(parent != null)
-			return getTransform().mult(parent.getAbsoluteTransform());
+			return parent.getAbsoluteTransform().mult(getTransform());
 		else
 			return getTransform();
 	}
