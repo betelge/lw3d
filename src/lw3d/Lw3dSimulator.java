@@ -94,4 +94,8 @@ public class Lw3dSimulator {
 		simState = SimState.EXIT;
 	}
 
+	public Lw3dSimulation getSimulation() {
+		return simulation;
+	}
+
 }

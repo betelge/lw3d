@@ -198,7 +198,7 @@ public class Renderer {
 		bindAttributes(shaderProgram, geometryInfo.attributeNames);
 
 		// Draw
-		GL11.glDrawElements(GL11.GL_QUADS, geometryInfo.count,
+		GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
 				GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
 		
 		if(fbo != null) {

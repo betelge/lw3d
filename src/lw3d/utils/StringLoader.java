@@ -14,8 +14,10 @@ public class StringLoader {
 	public static String loadString(String filename)
 			throws IOException {
 		InputStream is = object.getClass().getResourceAsStream(filename);
-		if(is == null)
+		if(is == null) {
 			System.out.println("Cant't load text file: " + filename);
+			return "";
+		}
 		InputStreamReader isr = new InputStreamReader(is);
 		BufferedReader reader = new BufferedReader(isr);
 		StringBuilder builder = new StringBuilder();

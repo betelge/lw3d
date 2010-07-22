@@ -71,10 +71,15 @@ public class GeometryManager {
 				ARBVertexBufferObject.GL_STATIC_DRAW_ARB);
 
 		// Initialize the QUAD
-		IntBuffer indices = BufferUtils.createIntBuffer(4);
-		for (int i = 0; i < 4; i++)
-			indices.put(i);
+		IntBuffer indices = BufferUtils.createIntBuffer(6);
+		indices.put(0);
+		indices.put(1);
+		indices.put(2);
+		indices.put(2);
+		indices.put(3);
+		indices.put(0);
 		indices.flip();
+		
 		Geometry.Attribute at = new Geometry.Attribute();
 		at.name = "position";
 		at.size = 3;
