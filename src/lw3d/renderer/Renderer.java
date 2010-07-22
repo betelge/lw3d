@@ -72,13 +72,17 @@ public class Renderer {
 		// TODO: Optionally set (core) profile
 
 		// Demand VBO support
-		if (!capabilities.GL_ARB_vertex_buffer_object)
+		if (!capabilities.GL_ARB_vertex_buffer_object) {
+			System.out.println("No VBO support.");
 			return;
+		}
 
 		// Demand shaders
 		// TODO: allow fallback to fixed function?
-		if (!capabilities.GL_ARB_shader_objects)
+		if (!capabilities.GL_ARB_shader_objects) {
+			System.out.println("No shader support.");
 			return;
+		}
 
 		if (capabilities.OpenGL30)
 			System.out.println("OpenGL30");
