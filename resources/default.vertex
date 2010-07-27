@@ -15,9 +15,11 @@ varying vec4 col;
 
 void main()
 {
-	col = vec4(normal, 1.0);
-	N = normalMatrix * normal;
-	tc = textureCoord;
 	pos = (modelViewMatrix * vec4(position, 1.0)).xyz;
 	gl_Position = perspectiveMatrix * vec4(pos, 1.0);
+	
+	// This is at the end to work around an intel bug.
+	tc = textureCoord;
+	col = vec4(normal, 1.0);
+	N = normalMatrix * normal;
 }
