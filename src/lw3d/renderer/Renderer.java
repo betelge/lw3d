@@ -37,6 +37,8 @@ public class Renderer {
 	ContextCapabilities capabilities;
 	
 	final public boolean isUseFixedVertexPipeline;
+	
+	final int width, height;
 
 	GeometryManager geometryManager;
 	ShaderManager shaderManager;
@@ -65,8 +67,11 @@ public class Renderer {
 	
 	long time = 0;
 
-	public Renderer(float fov, float zNear, float zFar, boolean isUseFixedVertexPipeline) {
+	public Renderer(float fov, float zNear, float zFar, int width, int height, boolean isUseFixedVertexPipeline) {
 		this.isUseFixedVertexPipeline = isUseFixedVertexPipeline;
+		this.width = width;
+		this.height = height;
+		
 		capabilities = GLContext.getCapabilities();
 
 		// TODO: Optionally set (core) profile
@@ -111,8 +116,7 @@ public class Renderer {
 		// Initialize perspecitve matrix
 		perspectiveMatrix = BufferUtils.createFloatBuffer(16);
 		float h = 1f / (float) Math.tan(fov * (float) Math.PI / 360f);
-		float aspect = Display.getDisplayMode().getWidth()
-				/ (float) Display.getDisplayMode().getHeight();
+		float aspect = width / (float) height;
 		perspectiveMatrix.put(h / aspect);
 		perspectiveMatrix.put(0f);
 		perspectiveMatrix.put(0f);
@@ -434,8 +438,7 @@ public class Renderer {
 		} else {
 			EXTFramebufferObject.glBindFramebufferEXT(
 					EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
-			GL11.glViewport(0, 0, Display.getDisplayMode().getWidth(), Display
-					.getDisplayMode().getHeight());
+			GL11.glViewport(0, 0, width, height);
 		}
 	}
 

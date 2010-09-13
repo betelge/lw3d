@@ -3,13 +3,26 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="AppleJavaExtensions.jar"/>
-	<classpathentry kind="lib" path="jinput.jar"/>
+	<classpathentry kind="lib" path="jinput.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="lw3d/native"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lwjgl_test.jar"/>
-	<classpathentry kind="lib" path="lwjgl_util_applet.jar"/>
-	<classpathentry kind="lib" path="lwjgl_util.jar"/>
-	<classpathentry kind="lib" path="lwjgl-debug.jar" sourcepath="lwjgl-source-2.4.2.zip"/>
-	<classpathentry kind="lib" path="lwjgl.jar" sourcepath="lwjgl-source-2.4.2.zip"/>
-	<classpathentry kind="lib" path="lzma.jar"/>
+	<classpathentry kind="lib" path="lwjgl_util.jar" sourcepath="lwjgl-source-2.5.zip">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="lw3d/native"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lwjgl-debug.jar" sourcepath="lwjgl-source-2.5.zip">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="lw3d/native"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lwjgl.jar" sourcepath="lwjgl-source-2.5.zip">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="lw3d/native"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
