@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import lw3d.Lw3dModel.RendererMode;
 import lw3d.renderer.ShaderProgram;
 import lw3d.renderer.ShaderProgram.Shader;
 import lw3d.renderer.ShaderProgram.Shader.Type;
@@ -14,10 +15,10 @@ public class ShaderManager {
 	
 	Map<ShaderProgram, Integer> shaderProgramHandles = new HashMap<ShaderProgram, Integer>();
 	
-	final private boolean isUseFixedVertexFunction;
+	final private RendererMode rendererMode;
 	
-	public ShaderManager(boolean isUseFixedVertexFunction) {
-		this.isUseFixedVertexFunction = isUseFixedVertexFunction;
+	public ShaderManager(RendererMode rendererMode) {
+		this.rendererMode = rendererMode;
 	}
 	
 	public int getShaderProgramHandle(ShaderProgram shaderProgram) {
@@ -36,7 +37,7 @@ public class ShaderManager {
 		Iterator<ShaderProgram.Shader> it = shaderProgram.getShaders().iterator();
 		while(it.hasNext()) {
 			Shader shader = it.next();
-			if(shader.type == Type.VERTEX && isUseFixedVertexFunction)
+			if(shader.type == Type.VERTEX && rendererMode != RendererMode.SHADERS)
 				continue;
 			
 			int shaderHandle = ARBShaderObjects.glCreateShaderObjectARB(shader.type.getValue());

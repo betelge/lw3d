@@ -83,7 +83,7 @@ public class Lw3dView {
 			}
 						
 			renderer = new Renderer(45f, 0.01f, 1000f, model.getDrawWidth(),
-					model.getDrawHeight(), model.isUseFixedVertexPipeline());
+					model.getDrawHeight(), model.getRendererMode());
 			
 			state = State.LOOP;
 			lastFPSTime = Sys.getTime();

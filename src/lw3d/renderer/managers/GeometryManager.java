@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lw3d.Lw3dModel.RendererMode;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.Geometry.Attribute;
 import lw3d.renderer.Geometry.Type;
@@ -21,7 +22,7 @@ import org.lwjgl.opengl.GL11;
 
 public class GeometryManager {
 
-	final private boolean isUseFixedVertexPipeline;
+	final private RendererMode rendererMode;
 
 	private int indexVBOHandle;
 	private int dataVBOHandle;
@@ -49,8 +50,8 @@ public class GeometryManager {
 
 	Map<Geometry, GeometryInfo> geometryInfos = new HashMap<Geometry, GeometryInfo>();
 
-	public GeometryManager(boolean isUseFixedVertexPipeline) {
-		this.isUseFixedVertexPipeline = isUseFixedVertexPipeline;
+	public GeometryManager(RendererMode rendererMode) {
+		this.rendererMode = rendererMode;
 
 		IntBuffer buff = BufferUtils.createIntBuffer(1);
 		ARBVertexBufferObject.glGenBuffersARB(buff);
@@ -218,7 +219,7 @@ public class GeometryManager {
 				}
 
 				// Bind the attribute to the VAO
-				if (!isUseFixedVertexPipeline) {
+				if (rendererMode == RendererMode.SHADERS) {
 					ARBVertexShader.glEnableVertexAttribArrayARB(i);
 					ARBVertexShader.glVertexAttribPointerARB(i,
 							geometryAttribute.size, geometryAttribute.type

@@ -1,51 +1,15 @@
 package lw3d;
 
 import java.awt.Canvas;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.Display;
-
-import lw3d.math.Quaternion;
-import lw3d.math.Transform;
-import lw3d.math.Vector3f;
 import lw3d.renderer.CameraNode;
-import lw3d.renderer.FBO;
-import lw3d.renderer.Geometry;
-import lw3d.renderer.GeometryNode;
-import lw3d.renderer.Light;
-import lw3d.renderer.Material;
-import lw3d.renderer.MovableGeometryNode;
-import lw3d.renderer.MovableNode;
 import lw3d.renderer.Node;
-import lw3d.renderer.RenderBuffer;
-import lw3d.renderer.ShaderProgram;
-import lw3d.renderer.Texture;
-import lw3d.renderer.Uniform;
-import lw3d.renderer.FBOAttachable.Format;
-import lw3d.renderer.Geometry.Attribute;
-import lw3d.renderer.ShaderProgram.Shader;
-import lw3d.renderer.Texture.Filter;
-import lw3d.renderer.Texture.TexelType;
-import lw3d.renderer.Texture.TextureType;
-import lw3d.renderer.Texture.WrapMode;
-import lw3d.renderer.managers.FBOManager;
-import lw3d.renderer.passes.BloomPass;
-import lw3d.renderer.passes.QuadRenderPass;
 import lw3d.renderer.passes.RenderPass;
-import lw3d.renderer.passes.SceneRenderPass;
-import lw3d.utils.GeometryLoader;
-import lw3d.utils.StringLoader;
-import lw3d.utils.TextureLoader;
 
 public class Lw3dModel {
 	
@@ -79,7 +43,11 @@ public class Lw3dModel {
 		this.drawHeight = drawHeight;
 	}
 
-	final public boolean isUseFixedVertexPipeline = false;
+	final public RendererMode rendererMode = RendererMode.SHADERS;
+	
+	public enum RendererMode {
+		SHADERS, FIXED_VERTEX, FIXED
+	}
 	
 	// Used to redirect drawing to an applet area
 	final private Canvas displayParent;
@@ -102,8 +70,8 @@ public class Lw3dModel {
 		return simulatedNodes;
 	}
 
-	public boolean isUseFixedVertexPipeline() {
-		return isUseFixedVertexPipeline;
+	public RendererMode getRendererMode() {
+		return rendererMode;
 	}
 
 	public CameraNode getCameraNode() {

@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lw3d.Lw3dModel.RendererMode;
 import lw3d.math.Quaternion;
 import lw3d.math.Transform;
 import lw3d.math.Vector3f;
@@ -35,8 +36,8 @@ import org.lwjgl.util.glu.Project;
 public class Renderer {
 
 	ContextCapabilities capabilities;
-	
-	final public boolean isUseFixedVertexPipeline;
+
+	final public RendererMode rendererMode;
 	
 	final int width, height;
 
@@ -45,7 +46,7 @@ public class Renderer {
 	TextureManager textureManager;
 	RenderBufferManager renderBufferManager;
 	FBOManager fboManager;
-	
+
 	// TODO: fix this in a better way
 	// Current camera transform
 	Transform cameraTransform;
@@ -54,7 +55,7 @@ public class Renderer {
 	FloatBuffer modelViewMatrix;
 	FloatBuffer perspectiveMatrix;
 	FloatBuffer normalMatrix;
-	
+
 	List<GeometryNode> renderNodes = new ArrayList<GeometryNode>();
 	List<Transform> renderTransforms = new ArrayList<Transform>();
 	Transform lightTransform = new Transform();
@@ -64,13 +65,13 @@ public class Renderer {
 	List<GeometryNode> backRenderNodes = new ArrayList<GeometryNode>();
 	List<Transform> backRenderTransforms = new ArrayList<Transform>();
 	Transform backLightTransform = new Transform();
-	
+
 	long time = 0;
 
-	public Renderer(float fov, float zNear, float zFar, int width, int height, boolean isUseFixedVertexPipeline) {
-		this.isUseFixedVertexPipeline = isUseFixedVertexPipeline;
+	public Renderer(float fov, float zNear, float zFar, int width, int height, RendererMode rendererMode) {
 		this.width = width;
 		this.height = height;
+		this.rendererMode = rendererMode;
 		
 		capabilities = GLContext.getCapabilities();
 
@@ -101,8 +102,8 @@ public class Renderer {
 		else if (capabilities.OpenGL11)
 			System.out.println("OpenGL11");
 
-		geometryManager = new GeometryManager(isUseFixedVertexPipeline);
-		shaderManager = new ShaderManager(isUseFixedVertexPipeline);
+		geometryManager = new GeometryManager(rendererMode);
+		shaderManager = new ShaderManager(rendererMode);
 		textureManager = new TextureManager();
 		renderBufferManager = new RenderBufferManager();
 		fboManager = new FBOManager(textureManager, renderBufferManager);
@@ -138,19 +139,18 @@ public class Renderer {
 		perspectiveMatrix.put(0f);
 
 		perspectiveMatrix.flip();
-		
-		if(isUseFixedVertexPipeline) {	
+
+		if (rendererMode != RendererMode.SHADERS) {
 			GL11.glEnable(GL11.GL_LIGHTING);
 
-			FloatBuffer ambientColorBuffer =
-					ByteBuffer.allocateDirect(16).order(ByteOrder.nativeOrder())
-							.asFloatBuffer();
+			FloatBuffer ambientColorBuffer = ByteBuffer.allocateDirect(16)
+					.order(ByteOrder.nativeOrder()).asFloatBuffer();
 
 			ambientColorBuffer.put(new float[] { 1f, 1f, 1f, 1f });
 			ambientColorBuffer.flip();
 
 			GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, ambientColorBuffer);
-			
+
 			// Create a directional light (w=0)
 			Vector3f Light0Position = new Vector3f(1f, 1f, 1f);
 			GL11.glEnable(GL11.GL_LIGHT0);
@@ -171,7 +171,7 @@ public class Renderer {
 	}
 
 	public void renderQuad(Material material, FBO fbo) {
-		if(isUseFixedVertexPipeline) {
+		if (rendererMode != RendererMode.SHADERS) {
 			GL11.glMatrixMode(GL11.GL_PROJECTION);
 			GL11.glLoadIdentity();
 			GL11.glMatrixMode(GL11.GL_MODELVIEW);
@@ -191,53 +191,57 @@ public class Renderer {
 		ARBVertexArrayObject.glBindVertexArray(geometryInfo.VAO);
 
 		// Set shader
-		int shaderProgram = shaderManager.getShaderProgramHandle(material
-				.getShaderProgram());
-		ARBShaderObjects.glUseProgramObjectARB(shaderProgram);
+		if (rendererMode != RendererMode.FIXED) {
+			int shaderProgram = shaderManager.getShaderProgramHandle(material
+					.getShaderProgram());
+			ARBShaderObjects.glUseProgramObjectARB(shaderProgram);
 
-		// Bind textures
-		bindTextures(shaderProgram, material.getTextures());
+			// Bind textures
+			bindTextures(shaderProgram, material.getTextures());
 
-		// Upload uniforms
-		Uniform[] uniforms = material.getUniforms();
-		uploadUniforms(shaderProgram, uniforms);
+			// Upload uniforms
+			Uniform[] uniforms = material.getUniforms();
+			uploadUniforms(shaderProgram, uniforms);
 
-		// Bind vertex attributes to uniform names
-		bindAttributes(shaderProgram, geometryInfo.attributeNames);
+			// Bind vertex attributes to uniform names
+			bindAttributes(shaderProgram, geometryInfo.attributeNames);
+		}
 
 		// Draw
 		GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
 				GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
-		
-		if(fbo != null) {
+
+		if (fbo != null) {
 			EXTFramebufferObject.glBindFramebufferEXT(
 					EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
 			fboManager.generateMipmaps(fbo);
 		}
-		 
+
 	}
 
 	public void renderSceneNonOpenGL(Node rootNode, CameraNode cameraNode) {
 		backRenderNodes.clear();
 		backRenderTransforms.clear();
-		
+
 		cameraTransform = cameraNode.getAbsoluteTransform();
-		
+
 		Vector3f camPos = cameraTransform.getPosition().mult(-1f);
 		Quaternion camRot = cameraTransform.getRotation().inverse();
-		
-		//camRot.mult(camPos, camPos);
-		
+
+		// camRot.mult(camPos, camPos);
+
 		Transform rotationTransform = new Transform(new Vector3f(), camRot);
 		Transform translationTransform = new Transform(camPos, new Quaternion());
-		
-		/*new Transform(camPos, new Quaternion())
-		.mult(new Transform(new Vector3f(), camRot)*/
-		
-		Transform trans = rotationTransform.mult(translationTransform);//.mult(translationTransform);
-		
-		cameraTransform = trans;//new Transform();
-		
+
+		/*
+		 * new Transform(camPos, new Quaternion()) .mult(new Transform(new
+		 * Vector3f(), camRot)
+		 */
+
+		Transform trans = rotationTransform.mult(translationTransform);// .mult(translationTransform);
+
+		cameraTransform = trans;// new Transform();
+
 		time = Sys.getTime();
 
 		ProcessNode(rootNode, new Transform());
@@ -245,11 +249,11 @@ public class Renderer {
 		List<GeometryNode> tempRenderNodes = backRenderNodes;
 		List<Transform> tempRenderTransforms = backRenderTransforms;
 		Transform tempLightTransform = backLightTransform;
-		
+
 		backRenderNodes = renderNodes;
 		backRenderTransforms = renderTransforms;
 		backLightTransform = lightTransform;
-		
+
 		renderNodes = tempRenderNodes;
 		renderTransforms = tempRenderTransforms;
 		lightTransform = tempLightTransform;
@@ -260,7 +264,7 @@ public class Renderer {
 	}
 
 	public void renderScene(Node rootNode, CameraNode cameraNode, FBO fbo) {
-		
+
 		renderSceneNonOpenGL(rootNode, cameraNode);
 
 		// Current objects. Used for performance.
@@ -279,8 +283,8 @@ public class Renderer {
 		int lightPosVectorLocation = 0;
 
 		GeometryInfo geometryInfo = null;
-		
-		if(isUseFixedVertexPipeline) {
+
+		if (rendererMode != RendererMode.SHADERS) {
 			GL11.glMatrixMode(GL11.GL_PROJECTION);
 			GL11.glLoadMatrix(perspectiveMatrix);
 			GL11.glMatrixMode(GL11.GL_MODELVIEW);
@@ -312,76 +316,79 @@ public class Renderer {
 			}
 
 			// Set shader
-			shaderProgram = geometryNode.getMaterial().getShaderProgram();
-			if (oldShaderProgram != shaderProgram) {
-				shaderProgramHandle = shaderManager
-						.getShaderProgramHandle(geometryNode.getMaterial()
-								.getShaderProgram());
-				ARBShaderObjects.glUseProgramObjectARB(shaderProgramHandle);
+			Map<String, Texture> textures = null;
+			if (rendererMode != RendererMode.FIXED) {
+				shaderProgram = geometryNode.getMaterial().getShaderProgram();
+				if (oldShaderProgram != shaderProgram) {
+					shaderProgramHandle = shaderManager
+							.getShaderProgramHandle(geometryNode.getMaterial()
+									.getShaderProgram());
+					ARBShaderObjects.glUseProgramObjectARB(shaderProgramHandle);
+				}
+
+				// Bind textures
+				textures = geometryNode.getMaterial()
+						.getTextures();
+				if (oldTextures != textures
+						|| oldShaderProgramHandle != shaderProgramHandle) {
+					bindTextures(shaderProgramHandle, textures);
+				}
+
+				// Upload uniforms
+				uniforms = geometryNode.getMaterial().getUniforms();
+				if (oldUniforms != uniforms
+						|| oldShaderProgramHandle != shaderProgramHandle) {
+					// TODO: check for changes instead?
+					uploadUniforms(shaderProgramHandle, uniforms);
+				}
+
+				if (oldShaderProgram != shaderProgram) {
+					modelViewMatrixLocation = ARBShaderObjects
+							.glGetUniformLocationARB(shaderProgramHandle,
+									"modelViewMatrix");
+					perspectiveMatrixLocation = ARBShaderObjects
+							.glGetUniformLocationARB(shaderProgramHandle,
+									"perspectiveMatrix");
+					normalMatrixLocation = ARBShaderObjects
+							.glGetUniformLocationARB(shaderProgramHandle,
+									"normalMatrix");
+					lightPosVectorLocation = ARBShaderObjects
+							.glGetUniformLocationARB(shaderProgramHandle,
+									"lightPos");
+				}
+				
+				Vector3f lightPosVector = lightTransform.getPosition();
+				ARBShaderObjects.glUniform3fARB(lightPosVectorLocation,
+						lightPosVector.x, lightPosVector.y, lightPosVector.z);
+
+				modelViewMatrix.clear();
+				modelViewMatrix.put(transform.toMatrix4());
+				modelViewMatrix.flip();
 			}
 
-			// Bind textures
-			Map<String, Texture> textures = geometryNode.getMaterial()
-					.getTextures();
-			if (oldTextures != textures
-					|| oldShaderProgramHandle != shaderProgramHandle) {
-				bindTextures(shaderProgramHandle, textures);
-			}
-
-			// Upload uniforms
-			uniforms = geometryNode.getMaterial().getUniforms();
-			if (oldUniforms != uniforms
-					|| oldShaderProgramHandle != shaderProgramHandle) {
-				// TODO: check for changes instead?
-				uploadUniforms(shaderProgramHandle, uniforms);
-			}
-
-			if (oldShaderProgram != shaderProgram) {
-				modelViewMatrixLocation = ARBShaderObjects
-						.glGetUniformLocationARB(shaderProgramHandle,
-								"modelViewMatrix");
-				perspectiveMatrixLocation = ARBShaderObjects
-						.glGetUniformLocationARB(shaderProgramHandle,
-								"perspectiveMatrix");
-				normalMatrixLocation = ARBShaderObjects
-						.glGetUniformLocationARB(shaderProgramHandle,
-								"normalMatrix");
-				lightPosVectorLocation = ARBShaderObjects
-				.glGetUniformLocationARB(shaderProgramHandle,
-						"lightPos");
-			}
-
-			modelViewMatrix.clear();
-			modelViewMatrix.put(transform.toMatrix4());
-			modelViewMatrix.flip();
-			if(!isUseFixedVertexPipeline) {
-				ARBShaderObjects.glUniformMatrix4ARB(modelViewMatrixLocation, false,
-						modelViewMatrix);
+			if (rendererMode == RendererMode.SHADERS) {
+				ARBShaderObjects.glUniformMatrix4ARB(modelViewMatrixLocation,
+						false, modelViewMatrix);
 				ARBShaderObjects.glUniformMatrix4ARB(perspectiveMatrixLocation,
 						false, perspectiveMatrix);
 				normalMatrix.clear();
 				normalMatrix.put(transform.getRotation().toMatrix3());
 				normalMatrix.flip();
-				ARBShaderObjects.glUniformMatrix3ARB(normalMatrixLocation, false,
-						normalMatrix);
-				
+				ARBShaderObjects.glUniformMatrix3ARB(normalMatrixLocation,
+						false, normalMatrix);
+
 				// Bind vertex attributes to uniform names
 				if (oldGeometryInfo != geometryInfo
 						|| oldShaderProgramHandle != shaderProgramHandle)
-					bindAttributes(shaderProgramHandle, geometryInfo.attributeNames);
+					bindAttributes(shaderProgramHandle,
+							geometryInfo.attributeNames);
 			} else
 				GL11.glLoadMatrix(modelViewMatrix);
 
-			
-			Vector3f lightPosVector = lightTransform.getPosition();
-			ARBShaderObjects.glUniform3fARB(lightPosVectorLocation,
-					lightPosVector.x, lightPosVector.y, lightPosVector.z);
-
-			
 			// Draw
 			GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
 					GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
-			
+
 			oldGeometry = geometry;
 			oldGeometryInfo = geometryInfo;
 			oldTextures = textures;
@@ -390,7 +397,7 @@ public class Renderer {
 			oldUniforms = uniforms;
 		}
 
-		if(fbo != null) {
+		if (fbo != null) {
 			EXTFramebufferObject.glBindFramebufferEXT(
 					EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
 			fboManager.generateMipmaps(fbo);
@@ -443,35 +450,34 @@ public class Renderer {
 	}
 
 	private void ProcessNode(Node node, Transform transform) {
-		
-		//System.out.println("Renderer processing node: " + node);
-		
+
+		// System.out.println("Renderer processing node: " + node);
+
 		Transform currentTransform = null;
-		if(node instanceof Movable) {
+		if (node instanceof Movable) {
 			Movable movable = (Movable) node;
 			float ratio = 0;
-			if(movable.getNextTime() != movable.getLastTime())
-				ratio = (time - movable.getLastTime()) /
-								(movable.getNextTime() - movable.getLastTime());
-			currentTransform = transform.mult(
-					movable.getTransform().interpolate(
-							movable.getNextTransform(), ratio));
+			if (movable.getNextTime() != movable.getLastTime())
+				ratio = (time - movable.getLastTime())
+						/ (movable.getNextTime() - movable.getLastTime());
+			currentTransform = transform.mult(movable.getTransform()
+					.interpolate(movable.getNextTransform(), ratio));
 		} else {
 			currentTransform = transform.mult(node.getTransform());
 		}
-		
+
 		if (node instanceof GeometryNode) {
 			backRenderNodes.add((GeometryNode) node);
 			backRenderTransforms.add(cameraTransform.mult(currentTransform));
 		}
-		
+
 		// TODO: Handle multiple lights
 		if (node instanceof Light) {
 			backLightTransform.set(cameraTransform.mult(currentTransform));
 		}
 		synchronized (node) {
 			Iterator<Node> it = node.getChildren().iterator();
-				while (it.hasNext()) {
+			while (it.hasNext()) {
 				ProcessNode(it.next(), currentTransform);
 			}
 		}
