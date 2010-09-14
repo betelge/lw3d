@@ -161,6 +161,18 @@ public class Renderer {
 					.asFloatBuffer());
 		}
 	}
+	
+	public void clear(int bufferBits) {
+		clear(bufferBits, null);
+	}
+	
+	public void clear(int bufferBits, FBO fbo) {
+		// Bind FBO
+		bindFBO(fbo);
+
+		// Clear color and depth buffers
+		GL11.glClear(bufferBits);
+	}
 
 	public void renderQuad(Material material) {
 		renderQuad(material, null);
@@ -177,8 +189,7 @@ public class Renderer {
 		// Bind FBO
 		bindFBO(fbo);
 
-		// Clear color and depth buffers
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		// Disable depth test
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 
 		// Bind quad VAO
@@ -288,9 +299,6 @@ public class Renderer {
 
 		// Bind FBO
 		bindFBO(fbo);
-
-		// Clear color and depth buffers
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		// Enable depth test
 		GL11.glEnable(GL11.GL_DEPTH_TEST);

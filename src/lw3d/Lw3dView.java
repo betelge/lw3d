@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import lw3d.renderer.Renderer;
+import lw3d.renderer.passes.ClearPass;
 import lw3d.renderer.passes.QuadRenderPass;
 import lw3d.renderer.passes.RenderMultiPass;
 import lw3d.renderer.passes.RenderPass;
@@ -122,7 +123,11 @@ public class Lw3dView {
 				
 				RenderPass renderPass = it.next();
 				
-				if(renderPass instanceof SceneRenderPass)
+				if(renderPass instanceof ClearPass) {
+					renderer.clear(((ClearPass) renderPass).getBufferBits(),
+							renderPass.getFbo());
+				}
+				else if(renderPass instanceof SceneRenderPass)
 					synchronized (((SceneRenderPass) renderPass).getRootNode()) {
 					renderer.renderScene(
 							((SceneRenderPass) renderPass).getRootNode(),
