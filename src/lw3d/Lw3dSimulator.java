@@ -5,8 +5,6 @@ import java.util.Set;
 
 import org.lwjgl.Sys;
 
-import lw3d.renderer.CameraNode;
-import lw3d.renderer.Movable;
 import lw3d.renderer.Node;
 
 public class Lw3dSimulator {

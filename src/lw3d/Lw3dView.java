@@ -3,10 +3,7 @@ package lw3d;
 import java.util.Iterator;
 import java.util.List;
 
-import lw3d.math.Quaternion;
-import lw3d.math.Vector3f;
 import lw3d.renderer.Renderer;
-import lw3d.renderer.managers.FBOManager;
 import lw3d.renderer.passes.QuadRenderPass;
 import lw3d.renderer.passes.RenderMultiPass;
 import lw3d.renderer.passes.RenderPass;
@@ -50,11 +47,12 @@ public class Lw3dView {
 			Thread.yield();
 	}
 	
-	private final Runnable nonOpenGLRunnable = new Runnable() {
+	// TODO: Make renderer two threaded. 
+	/*private final Runnable nonOpenGLRunnable = new Runnable() {
 		public void run() {
 			
 		}
-	};
+	};*/
 
 	private final Runnable openGLRunnable = new Runnable() {
 		public void run() {

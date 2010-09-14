@@ -12,7 +12,6 @@ import lw3d.Lw3dModel.RendererMode;
 import lw3d.math.Quaternion;
 import lw3d.math.Transform;
 import lw3d.math.Vector3f;
-import lw3d.renderer.ShaderProgram.Shader;
 import lw3d.renderer.managers.FBOManager;
 import lw3d.renderer.managers.GeometryManager;
 import lw3d.renderer.managers.RenderBufferManager;
@@ -26,12 +25,10 @@ import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.ContextCapabilities;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.glu.Project;
 
 public class Renderer {
 
@@ -152,7 +149,6 @@ public class Renderer {
 			GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, ambientColorBuffer);
 
 			// Create a directional light (w=0)
-			Vector3f Light0Position = new Vector3f(1f, 1f, 1f);
 			GL11.glEnable(GL11.GL_LIGHT0);
 			ByteBuffer light0PositionBuffer = ByteBuffer.allocateDirect(4 * 4);
 			light0PositionBuffer.order(ByteOrder.nativeOrder());

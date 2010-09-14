@@ -11,8 +11,6 @@ import java.util.Map;
 
 import lw3d.Lw3dModel.RendererMode;
 import lw3d.renderer.Geometry;
-import lw3d.renderer.Geometry.Attribute;
-import lw3d.renderer.Geometry.Type;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexArrayObject;

@@ -4,7 +4,6 @@ import java.nio.Buffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 public class Geometry {

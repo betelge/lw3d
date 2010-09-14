@@ -2,7 +2,6 @@ package lw3d.renderer;
 
 import java.nio.ByteBuffer;
 
-import org.lwjgl.opengl.ARBTextureFloat;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;

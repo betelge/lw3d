@@ -1,12 +1,9 @@
 package lw3d.utils;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream.GetField;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -15,7 +12,6 @@ import java.util.List;
 
 import org.lwjgl.BufferUtils;
 
-import lw3d.Lw3dModel;
 import lw3d.math.Vector3f;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.Geometry.Attribute;
