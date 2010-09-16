@@ -9,12 +9,14 @@ attribute vec2 textureCoord;
 attribute vec3 normal;
 
 varying vec3 pos;
+varying vec3 modelPos;
 varying vec2 tc;
 varying vec3 N;
 varying vec4 col;
 
 void main()
 {
+	modelPos = position;
 	pos = (modelViewMatrix * vec4(position, 1.0)).xyz;
 	gl_Position = perspectiveMatrix * vec4(pos, 1.0);
 	

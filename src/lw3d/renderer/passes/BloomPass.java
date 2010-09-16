@@ -110,7 +110,7 @@ public class BloomPass extends RenderMultiPass {
 		materials[1].addTexture("source", textures[1]);
 		renderPasses.add(new QuadRenderPass(materials[1], fbos[0]));
 		
-		// Draw from fb0 to the destination fbo
+		// Blend fbo0 with original texture and draw to the fbo
 		renderPasses.add(new QuadRenderPass(materials[3], fbo));
 	}
 }

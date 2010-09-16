@@ -54,20 +54,31 @@ public class Texture extends FBOAttachable{
 
 
 	public enum Filter {
-		NEAREST(GL11.GL_NEAREST), LINEAR(GL11.GL_LINEAR), NEAREST_MIPMAP_NEAREST(
-				GL11.GL_NEAREST_MIPMAP_NEAREST), NEAREST_MIPMAP_LINEAR(
-				GL11.GL_NEAREST_MIPMAP_LINEAR), LINEAR_MIPMAP_NEAREST(
-				GL11.GL_LINEAR_MIPMAP_NEAREST), LINEAR_MIPMAP_LINEAR(
-				GL11.GL_LINEAR_MIPMAP_LINEAR);
+		NEAREST(GL11.GL_NEAREST),
+		LINEAR(GL11.GL_LINEAR),
+		NEAREST_MIPMAP_NEAREST(GL11.GL_NEAREST_MIPMAP_NEAREST, GL11.GL_NEAREST),
+		NEAREST_MIPMAP_LINEAR(GL11.GL_NEAREST_MIPMAP_LINEAR, GL11.GL_NEAREST),
+		LINEAR_MIPMAP_NEAREST(GL11.GL_LINEAR_MIPMAP_NEAREST, GL11.GL_LINEAR),
+		LINEAR_MIPMAP_LINEAR(GL11.GL_LINEAR_MIPMAP_LINEAR, GL11.GL_LINEAR);
 
 		private int filter;
-
+		private int noMipMapFilter;
+		
 		private Filter(int filter) {
+			this(filter, filter);
+		}
+
+		private Filter(int filter, int noMipMapFilter) {
 			this.filter = filter;
+			this.noMipMapFilter = noMipMapFilter;
 		}
 
 		public int getValue() {
 			return filter;
+		}
+		
+		public int getNoMipMapValue() {
+			return noMipMapFilter;
 		}
 	}
 
@@ -85,17 +96,24 @@ public class Texture extends FBOAttachable{
 			return mode;
 		}
 	}
-
+	
 	public Texture(ByteBuffer textureData, TextureType textureType, int width,
-			int height, TexelType texelType, Format format, Filter filter,
+			int height, int depth, TexelType texelType, Format format, Filter filter,
 			WrapMode wrapMode) {
 		super(format, width, height);
 		this.textureData = textureData;
 		this.textureType = textureType;
-		this.depth = 1;
+		this.depth = depth;
 		this.texelType = texelType;
 		this.filter = filter;
 		this.wrapMode = wrapMode;
+	}
+
+	public Texture(ByteBuffer textureData, TextureType textureType, int width,
+			int height, TexelType texelType, Format format, Filter filter,
+			WrapMode wrapMode) {
+		this(textureData, textureType, width, height, 1, texelType, format,
+				filter, wrapMode);
 	}
 
 	public TextureType getTextureType() {

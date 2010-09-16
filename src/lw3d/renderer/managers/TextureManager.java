@@ -32,7 +32,7 @@ public class TextureManager {
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
 				GL11.GL_TEXTURE_MIN_FILTER, texture.getFilter().getValue());
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
-				GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR); // TODO: <- hardcoded linear
+				GL11.GL_TEXTURE_MAG_FILTER, texture.getFilter().getNoMipMapValue());
 
 		// Set wrap modes
 		GL11.glTexParameteri(texture.getTextureType().getValue(),
@@ -62,6 +62,8 @@ public class TextureManager {
 					texture.getHeight(), 0, texture.getFormat()
 							.getExternalFormatValue(), texture.getTexelType()
 							.getValue(), texture.getTextureData());
+			// Generate mipmaps
+			EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
 			break;
 		case TEXTURE_3D:
 			GL12.glTexImage3D(texture.getTextureType().getValue(), 0, texture
@@ -73,9 +75,6 @@ public class TextureManager {
 		default:
 			return false;
 		}
-		
-		// Generate mipmaps
-		EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
 
 		textureHandles.put(texture, textureHandle);
 		return true;

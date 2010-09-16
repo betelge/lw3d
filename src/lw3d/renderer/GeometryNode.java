@@ -14,6 +14,10 @@ public class GeometryNode extends Node {
 		return geometry;
 	}
 	
+	public void setMaterial(Material material) {
+		this.material = material;
+	}
+
 	public Material getMaterial() {
 		return material;
 	}
