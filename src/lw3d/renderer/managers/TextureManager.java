@@ -62,8 +62,6 @@ public class TextureManager {
 					texture.getHeight(), 0, texture.getFormat()
 							.getExternalFormatValue(), texture.getTexelType()
 							.getValue(), texture.getTextureData());
-			// Generate mipmaps
-			EXTFramebufferObject.glGenerateMipmapEXT(GL11.GL_TEXTURE_2D);
 			break;
 		case TEXTURE_3D:
 			GL12.glTexImage3D(texture.getTextureType().getValue(), 0, texture
@@ -75,6 +73,10 @@ public class TextureManager {
 		default:
 			return false;
 		}
+		
+		// Generate mipmaps
+		EXTFramebufferObject.glGenerateMipmapEXT(
+				texture.getTextureType().getValue());
 
 		textureHandles.put(texture, textureHandle);
 		return true;

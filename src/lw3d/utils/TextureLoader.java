@@ -10,15 +10,11 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.EXTFramebufferObject;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import lw3d.renderer.Texture;
 import lw3d.renderer.FBOAttachable.Format;
 import lw3d.renderer.Texture.Filter;
 import lw3d.renderer.Texture.TexelType;
-import lw3d.renderer.Texture.TextureType;
 import lw3d.renderer.Texture.WrapMode;
 
 public class TextureLoader {
@@ -72,7 +68,7 @@ public class TextureLoader {
 		buffer.flip();
 		
 		return new Texture(buffer, textureType, size, size, size, TexelType.USHORT, Format.GL_LUMINANCE16_ALPHA16,
-				Filter.LINEAR, WrapMode.REPEAT);
+				Filter.LINEAR_MIPMAP_LINEAR, WrapMode.REPEAT);
 	}
 	
 	public static void setObject(Object givenObject) {
