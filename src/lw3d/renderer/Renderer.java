@@ -18,9 +18,11 @@ import lw3d.renderer.managers.RenderBufferManager;
 import lw3d.renderer.managers.ShaderManager;
 import lw3d.renderer.managers.TextureManager;
 import lw3d.renderer.managers.GeometryManager.GeometryInfo;
+import lw3d.renderer.passes.SetPass;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.Sys;
+import org.lwjgl.opengl.ARBPointSprite;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ARBVertexShader;
@@ -162,6 +164,19 @@ public class Renderer {
 		}
 	}
 	
+	public void setState(SetPass.State state, boolean set) {
+		switch(state) {
+		case DEPTH_WRITE:
+			GL11.glDepthMask(set);
+			break;
+		default:	
+			if(set)
+				GL11.glEnable(state.getValue());
+			else
+				GL11.glDisable(state.getValue());
+		}
+	}
+	
 	public void clear(int bufferBits) {
 		clear(bufferBits, null);
 	}
@@ -191,6 +206,9 @@ public class Renderer {
 
 		// Disable depth test
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		
+		// Disable alpha
+		GL11.glDisable(GL11.GL_BLEND);
 
 		// Bind quad VAO
 		GeometryInfo geometryInfo = geometryManager
@@ -302,6 +320,13 @@ public class Renderer {
 
 		// Enable depth test
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		// Enable vertex point size
+		GL11.glEnable(ARBVertexShader.GL_VERTEX_PROGRAM_POINT_SIZE_ARB);
+		// Enable this to get gl_PointCoord in fragment shader, for pre-OpenGL3.2
+		GL11.glEnable(ARBPointSprite.GL_POINT_SPRITE_ARB);
+		// Enable alpha
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
 		Iterator<GeometryNode> it = renderNodes.iterator();
 		Iterator<Transform> tit = renderTransforms.iterator();
@@ -390,7 +415,7 @@ public class Renderer {
 				GL11.glLoadMatrix(modelViewMatrix);
 
 			// Draw
-			GL11.glDrawElements(GL11.GL_TRIANGLES, geometryInfo.count,
+			GL11.glDrawElements(geometry.getPrimitiveType().getValue(), geometryInfo.count,
 					GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
 
 			oldGeometry = geometry;

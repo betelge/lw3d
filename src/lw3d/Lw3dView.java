@@ -9,6 +9,7 @@ import lw3d.renderer.passes.QuadRenderPass;
 import lw3d.renderer.passes.RenderMultiPass;
 import lw3d.renderer.passes.RenderPass;
 import lw3d.renderer.passes.SceneRenderPass;
+import lw3d.renderer.passes.SetPass;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -122,7 +123,10 @@ public class Lw3dView {
 			while(it.hasNext()) {
 				
 				RenderPass renderPass = it.next();
-				
+				if(renderPass instanceof SetPass) {
+					renderer.setState(((SetPass) renderPass).getState(),
+							((SetPass) renderPass).isSet());
+				}
 				if(renderPass instanceof ClearPass) {
 					renderer.clear(((ClearPass) renderPass).getBufferBits(),
 							renderPass.getFbo());
