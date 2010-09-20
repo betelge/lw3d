@@ -205,6 +205,7 @@ public class GeometryManager {
 				// Upload attribute data to the data VBO
 				switch (geometryAttribute.type) {
 				case BYTE:
+				case UBYTE:
 					ARBVertexBufferObject.glBufferSubDataARB(
 							ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB,
 							dataOffset, (ByteBuffer) geometryAttribute.buffer);

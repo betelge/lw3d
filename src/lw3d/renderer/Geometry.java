@@ -27,7 +27,7 @@ public class Geometry {
 	final PrimitiveType primitiveType;
 	
 	public enum Type {		
-		BYTE(GL11.GL_BYTE), FLOAT(GL11.GL_FLOAT);
+		BYTE(GL11.GL_BYTE), UBYTE(GL11.GL_UNSIGNED_BYTE), FLOAT(GL11.GL_FLOAT);
 		
 		int type;
 		
