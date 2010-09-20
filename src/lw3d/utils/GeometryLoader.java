@@ -15,7 +15,6 @@ import org.lwjgl.BufferUtils;
 import lw3d.math.Vector3f;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.Geometry.Attribute;
-import lw3d.renderer.Geometry.PrimitiveType;
 import lw3d.renderer.Geometry.Type;
 
 public class GeometryLoader {

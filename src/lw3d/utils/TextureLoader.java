@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
 
+import lw3d.math.Noise;
 import lw3d.renderer.Texture;
 import lw3d.renderer.FBOAttachable.Format;
 import lw3d.renderer.Texture.Filter;
@@ -44,30 +45,51 @@ public class TextureLoader {
 	}
 	
 	static public Texture generateNoiseTexture(Texture.TextureType textureType, int size, long seed) {
+		int samples = 1;
+		
 		int length;
 		switch(textureType) {
 		case TEXTURE_1D:
-			length = size;
+			length = samples*size;
 			break;
 		case TEXTURE_2D:
-			length = size * size;
+			length = samples*size * samples*size;
 			break;
 		case TEXTURE_3D:
-			length = size * size * size;
+			samples = 3;
+			length = samples*size * samples*size * samples*size;
 			break;
 		default:
 				return null;
 		}
 		
 		ByteBuffer buffer = BufferUtils.createByteBuffer( 4 * length );
-		byte[] array = new byte[4 * length];
 		
-		Random rand = new Random(seed);
-		rand.nextBytes(array);
-		buffer.put(array);
+		switch(textureType) {
+		case TEXTURE_3D:
+			Noise rNoise = new Noise(seed),
+				iNoise = new Noise(seed ^ 22l);
+			
+			for(float x = 1f/6; x < size; x += 1f/3)
+				for(float y = 1f/6; y < size; y += 1f/3)
+					for(float z = 1f/6; z < size; z += 1f/3) {
+						buffer.putShort((short)(Short.MAX_VALUE * rNoise.noise(x,y,z)));
+						buffer.putShort((short)(Short.MAX_VALUE * iNoise.noise(x,y,z)));
+					}
+			break;
+		default:
+				
+				// vnoise
+				Random rand = new Random(seed);
+				byte[] array = new byte[4 * length];
+				rand.nextBytes(array);
+				buffer.put(array);
+		}
+		
 		buffer.flip();
 		
-		return new Texture(buffer, textureType, size, size, size, TexelType.USHORT, Format.GL_LUMINANCE16_ALPHA16,
+		return new Texture(buffer, textureType, size, size, size,
+				TexelType.USHORT, Format.GL_LUMINANCE16_ALPHA16,
 				Filter.LINEAR_MIPMAP_LINEAR, WrapMode.REPEAT);
 	}
 	
