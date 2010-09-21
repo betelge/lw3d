@@ -162,6 +162,9 @@ public class Renderer {
 			GL11.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, light0PositionBuffer
 					.asFloatBuffer());
 		}
+		
+		// Enable back-faces culling
+		GL11.glEnable(GL11.GL_CULL_FACE);
 	}
 	
 	public void setState(SetPass.State state, boolean set) {

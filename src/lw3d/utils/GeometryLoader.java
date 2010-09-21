@@ -63,8 +63,8 @@ public class GeometryLoader {
 						if (j == 4) {
 							// Create an extra triangle
 							indices.add(v2.size() / 3);
-							indices.add(v2.size() / 3 - 1);
 							indices.add(v2.size() / 3 - 3);
+							indices.add(v2.size() / 3 - 1);
 						} else
 							indices.add(v2.size() / 3);
 
