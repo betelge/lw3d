@@ -243,8 +243,7 @@ public class Renderer {
 				GL11.GL_UNSIGNED_INT, geometryInfo.indexOffset);
 
 		if (fbo != null) {
-			EXTFramebufferObject.glBindFramebufferEXT(
-					EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
+			bindFBO(null);
 			fboManager.generateMipmaps(fbo);
 		}
 
@@ -433,8 +432,7 @@ public class Renderer {
 		}
 
 		if (fbo != null) {
-			EXTFramebufferObject.glBindFramebufferEXT(
-					EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
+			bindFBO(null);
 			fboManager.generateMipmaps(fbo);
 		}
 
