@@ -64,6 +64,9 @@ public class Renderer {
 	List<GeometryNode> backRenderNodes = new ArrayList<GeometryNode>();
 	List<Transform> backRenderTransforms = new ArrayList<Transform>();
 	Transform backLightTransform = new Transform();
+	
+	// Current states
+	FBO oldFBO = null;
 
 	long time = 0;
 
@@ -464,6 +467,8 @@ public class Renderer {
 	}
 
 	private void bindFBO(FBO fbo) {
+		if (fbo == oldFBO) return;
+		
 		if (fbo != null) {
 
 			if (!fboManager.isComplete(fbo))
@@ -479,6 +484,8 @@ public class Renderer {
 					EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);
 			GL11.glViewport(0, 0, width, height);
 		}
+		
+		oldFBO = fbo;
 	}
 
 	private void ProcessNode(Node node, Transform transform) {

@@ -49,4 +49,9 @@ public class Node {
 	public Set<Node> getChildren() {
 		return children;
 	}
+	
+	// TODO: is this ok/good to have?
+	public Node getParent() {
+		return parent;
+	}
 }
