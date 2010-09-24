@@ -43,6 +43,18 @@ public class Vector3f
 		this.z += vector.z;
 	}
 
+	/**
+	 * Scales vector before adding it to this.
+	 * 
+	 * @param vector
+	 * @param scale
+	 */
+	public void addMultThis(Vector3f vector, float scale) {
+		this.x += scale * vector.x;
+		this.y += scale * vector.y;
+		this.z += scale * vector.z;
+	}
+
 	public Vector3f add(float x, float y, float z)
 	{
 		return new Vector3f(this.x + x, this.y + y, this.z + z);

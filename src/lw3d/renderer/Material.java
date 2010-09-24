@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Material {
+	
+	static public Material DEFAULT = new Material(ShaderProgram.DEFAULT);
 
 	private ShaderProgram shaderProgram;
 	private Uniform[] uniforms;

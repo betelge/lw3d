@@ -27,8 +27,6 @@ public class GeometryManager {
 	private int indexOffset = 0;
 	private int dataOffset = 0;
 
-	static public Geometry QUAD;
-
 	public class GeometryInfo {
 		// VAO handle
 		public int VAO = 0;
@@ -122,7 +120,7 @@ public class GeometryManager {
 		List<Geometry.Attribute> lat = new ArrayList<Geometry.Attribute>();
 		lat.add(at);
 		lat.add(at2);
-		QUAD = new Geometry(indices, lat);
+		Geometry.QUAD = new Geometry(indices, lat);
 	}
 
 	@Override

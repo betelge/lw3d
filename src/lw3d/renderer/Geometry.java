@@ -7,11 +7,13 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 public class Geometry {
+	static public Geometry QUAD;
+	
 	final IntBuffer indices;
 	final List<Attribute> attributes;
 	public enum PrimitiveType {
 		POINTS(GL11.GL_POINTS), LINES(GL11.GL_LINES),
-		TRIANGLES(GL11.GL_TRIANGLES), QUADS(GL11.GL_QUADS);
+		TRIANGLES(GL11.GL_TRIANGLES), TRIANGLE_STRIP(GL11.GL_TRIANGLE_STRIP);
 		
 		int value;
 		

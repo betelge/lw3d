@@ -94,8 +94,8 @@ public class GeometryLoader {
 			br.close();
 
 		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+			System.out.println("Can't read " + filename + ", using a quad instead.");
+			return Geometry.QUAD;
 		}
 
 		List<Attribute> attributes = new ArrayList<Attribute>();

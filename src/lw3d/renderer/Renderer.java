@@ -218,7 +218,7 @@ public class Renderer {
 
 		// Bind quad VAO
 		GeometryInfo geometryInfo = geometryManager
-				.getGeometryInfo(GeometryManager.QUAD);
+				.getGeometryInfo(Geometry.QUAD);
 		ARBVertexArrayObject.glBindVertexArray(geometryInfo.VAO);
 
 		// Set shader

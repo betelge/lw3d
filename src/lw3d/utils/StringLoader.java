@@ -9,6 +9,16 @@ public class StringLoader {
 	
 	static private Object object = new Object(); 
 	
+	public static String loadStringExceptionless(String filename) {
+		try {
+			return loadString(filename);
+		} catch (IOException e) {
+			System.out.println("Can't read " + filename + ", using empty string instead.");
+			return "";
+		}
+	}
+
+	
 	public static String loadString(String filename)
 			throws IOException {
 		InputStream is = object.getClass().getResourceAsStream(filename);
