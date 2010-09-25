@@ -1,0 +1,13 @@
+#version 120
+
+uniform sampler2D texture0;
+uniform vec3 lightPos;
+
+varying vec3 modelPos;
+varying vec3 N;
+
+void main()
+{
+	vec4 color = vec4(normalize(N), 1.0);
+	gl_FragColor = color;
+}

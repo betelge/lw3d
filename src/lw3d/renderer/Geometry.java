@@ -12,7 +12,7 @@ public class Geometry {
 	final IntBuffer indices;
 	final List<Attribute> attributes;
 	public enum PrimitiveType {
-		POINTS(GL11.GL_POINTS), LINES(GL11.GL_LINES),
+		POINTS(GL11.GL_POINTS), LINES(GL11.GL_LINES), LINE_STRIP(GL11.GL_LINE_STRIP),
 		TRIANGLES(GL11.GL_TRIANGLES), TRIANGLE_STRIP(GL11.GL_TRIANGLE_STRIP);
 		
 		int value;

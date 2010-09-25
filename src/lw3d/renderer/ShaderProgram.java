@@ -18,7 +18,7 @@ public class ShaderProgram {
 			new Shader(Type.VERTEX, StringLoader.loadStringExceptionless("/default.vertex"));
 		
 		static public Shader DEFAULT_FRAGMENT =
-			new Shader(Type.FRAGMENT, StringLoader.loadStringExceptionless("/light.fragment")); 
+			new Shader(Type.FRAGMENT, StringLoader.loadStringExceptionless("/normal.fragment")); 
 		
 		final public String source;
 		final public Type type;
