@@ -1,0 +1,8 @@
+#version 120
+
+varying vec3 modelPos;
+
+void main()
+{
+	gl_FragColor = vec4(100.0*normalize(modelPos), 1.0);
+}

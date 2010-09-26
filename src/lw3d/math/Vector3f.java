@@ -54,6 +54,20 @@ public class Vector3f
 		this.y += scale * vector.y;
 		this.z += scale * vector.z;
 	}
+	
+	public void addMultThis(float x, float y, float z, float scale) {
+		this.x += scale * x;
+		this.y += scale * y;
+		this.z += scale * z;
+	}
+	
+	public Vector3f addMult(float x, float y, float z, float scale) {
+		return new Vector3f(this.x + scale*x, this.y + scale*y, this.z + scale*z);
+	}
+	
+	public Vector3f addMult(Vector3f vector, float scale) {
+		return new Vector3f(this.x + scale*vector.x, this.y + scale*vector.y, this.z + scale*vector.z);
+	}
 
 	public Vector3f add(float x, float y, float z)
 	{

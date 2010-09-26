@@ -127,7 +127,7 @@ public class Lw3dView {
 					renderer.setState(((SetPass) renderPass).getState(),
 							((SetPass) renderPass).isSet());
 				}
-				if(renderPass instanceof ClearPass) {
+				else if(renderPass instanceof ClearPass) {
 					renderer.clear(((ClearPass) renderPass).getBufferBits(),
 							renderPass.getFbo());
 				}

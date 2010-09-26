@@ -57,14 +57,21 @@ public class GeometryManager {
 				indexVBOHandle);
 		ARBVertexBufferObject.glBufferDataARB(
 				ARBVertexBufferObject.GL_ELEMENT_ARRAY_BUFFER_ARB,
-				1 * 1024 * 1024, ARBVertexBufferObject.GL_STATIC_DRAW_ARB);
+				4 * 1024 * 1024, ARBVertexBufferObject.GL_STATIC_DRAW_ARB);
 
+		/* TODO:
+		 * Add new buffer objects dynamically and change these sizez back to
+		 * 1 MiB and 4 MiB.
+		 * 
+		 *  Add a Set or Map of VBOs.
+		 */ 
+		
 		ARBVertexBufferObject.glGenBuffersARB(buff);
 		dataVBOHandle = buff.get(0);
 		ARBVertexBufferObject.glBindBufferARB(
 				ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, dataVBOHandle);
 		ARBVertexBufferObject.glBufferDataARB(
-				ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 4 * 1024 * 1024,
+				ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 32 * 1024 * 1024,
 				ARBVertexBufferObject.GL_STATIC_DRAW_ARB);
 
 		// Initialize the QUAD
@@ -254,7 +261,7 @@ public class GeometryManager {
 
 				// Update the data VBO offset
 				dataOffset += geometryAttribute.buffer.capacity() * 4;
-
+				
 			}
 
 			geometryInfos.put(geometry, geometryInfo);

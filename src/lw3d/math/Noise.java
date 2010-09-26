@@ -84,8 +84,6 @@ public class Noise implements Procedural{
 		double modX = x - iX,
 			modY = y - iY,
 			modZ = z - iZ;
-			
-		// TODO: There is stil a bug in the normal calculation somewhere!
 		
 		// Gradients
 		double gAx = gradients[iX][iY][iZ][0],
@@ -174,7 +172,7 @@ public class Noise implements Procedural{
 				dk6y = gGy - gEy - gCy + gAy,
 				dk7y = gHy - gGy - gFy + gEy - gDy + gCy + gBy - gAy,
 				
-				dk0z = gAx,
+				dk0z = gAz,
 				dk1z = gBz - gAz,
 				dk2z = gCz - gAz,
 				dk3z = gEz - gAz,
