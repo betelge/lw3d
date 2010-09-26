@@ -10,6 +10,7 @@ import lw3d.renderer.ShaderProgram.Shader;
 import lw3d.renderer.ShaderProgram.Shader.Type;
 
 import org.lwjgl.opengl.ARBShaderObjects;
+import org.lwjgl.opengl.GL11;
 
 public class ShaderManager {
 	
@@ -41,8 +42,11 @@ public class ShaderManager {
 				continue;
 			
 			int shaderHandle = ARBShaderObjects.glCreateShaderObjectARB(shader.type.getValue());
-						
-			ARBShaderObjects.glShaderSourceARB(shaderHandle, shader.source);
+			
+			if(rendererMode == RendererMode.FIXED_VERTEX && shader.source_ff != null)
+				ARBShaderObjects.glShaderSourceARB(shaderHandle, shader.source_ff);
+			else
+				ARBShaderObjects.glShaderSourceARB(shaderHandle, shader.source);
 			ARBShaderObjects.glCompileShaderARB(shaderHandle);
 			
 			ARBShaderObjects.glAttachObjectARB(shaderProgramHandle, shaderHandle);
@@ -58,11 +62,26 @@ public class ShaderManager {
 				ARBShaderObjects.glGetInfoLogARB(shaderProgramHandle, 2048));
 		
 		ARBShaderObjects.glValidateProgramARB(shaderProgramHandle);
-		System.out.println("validProgStat: " +
-				ARBShaderObjects.glGetObjectParameteriARB(shaderProgramHandle,
-						ARBShaderObjects.GL_OBJECT_VALIDATE_STATUS_ARB));
-		
-		shaderProgramHandles.put(shaderProgram, shaderProgramHandle);
+		int validStatus = ARBShaderObjects.glGetObjectParameteriARB(shaderProgramHandle,
+						ARBShaderObjects.GL_OBJECT_VALIDATE_STATUS_ARB);
+		System.out.println("validProgStat: " + validStatus);
+				
+		if(validStatus == GL11.GL_TRUE)
+			shaderProgramHandles.put(shaderProgram, shaderProgramHandle);
+		else {
+			/*System.out.println("Source:");
+			Iterator<ShaderProgram.Shader> sit = shaderProgram.getShaders().iterator();
+			while(sit.hasNext())
+				System.out.println(sit.next().source);
+			*/
+			if(shaderProgram == ShaderProgram.DEFAULT) {
+				System.out.println("Default shader failed validation.");
+				return false;
+			}
+			tryToUpload(ShaderProgram.DEFAULT);
+			int defaultHandle = shaderProgramHandles.get(ShaderProgram.DEFAULT);
+			shaderProgramHandles.put(shaderProgram, defaultHandle);
+		}
 		
 		return true;
 	}

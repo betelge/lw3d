@@ -18,14 +18,21 @@ public class ShaderProgram {
 			new Shader(Type.VERTEX, StringLoader.loadStringExceptionless("/default.vertex"));
 		
 		static public Shader DEFAULT_FRAGMENT =
-			new Shader(Type.FRAGMENT, StringLoader.loadStringExceptionless("/normal.fragment")); 
+			new Shader(Type.FRAGMENT, StringLoader.loadStringExceptionless("/normal.fragment"),
+					StringLoader.loadStringExceptionless("/normal_ff.fragment"));
 		
 		final public String source;
+		final public String source_ff;
 		final public Type type;
 		
 		public Shader(Type type, String source) {
+			this(type, source, null);
+		}
+		
+		public Shader(Type type, String source, String source_ff) {
 			this.type = type;
 			this.source = source;
+			this.source_ff = source_ff;
 		}
 
 		public enum Type {

@@ -376,7 +376,7 @@ public class Renderer {
 					uploadUniforms(shaderProgramHandle, uniforms);
 				}
 
-				if (oldShaderProgram != shaderProgram) {
+				if (oldShaderProgram != shaderProgram && rendererMode != RendererMode.FIXED) {
 					modelViewMatrixLocation = ARBShaderObjects
 							.glGetUniformLocationARB(shaderProgramHandle,
 									"modelViewMatrix");

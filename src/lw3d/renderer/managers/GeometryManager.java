@@ -216,6 +216,7 @@ public class GeometryManager {
 				}
 
 				// Bind the attribute to the VAO
+				// TODO: Use a get to get the right index from OpenGL?
 				if (rendererMode == RendererMode.SHADERS) {
 					ARBVertexShader.glEnableVertexAttribArrayARB(i);
 					ARBVertexShader.glVertexAttribPointerARB(i,
@@ -226,17 +227,25 @@ public class GeometryManager {
 				} else {
 					if (geometryAttribute.name.equals("position")) {
 						GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-						GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, dataOffset);
+						GL11.glVertexPointer(geometryAttribute.size,
+								geometryAttribute.type.getType(), 0, dataOffset);
 					}
 					else if (geometryAttribute.name.equals("textureCoord")) {
 						GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-						GL11.glTexCoordPointer(2, GL11.GL_FLOAT, 0, dataOffset);
+						GL11.glTexCoordPointer(geometryAttribute.size,
+								geometryAttribute.type.getType(), 0, dataOffset);
 					}
 					else if (geometryAttribute.name.equals("normal")) {
 						GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
-						GL11.glNormalPointer(GL11.GL_FLOAT, 0, dataOffset);
+						GL11.glNormalPointer(
+								geometryAttribute.type.getType(), 0, dataOffset);
 					}
-					System.out.println(geometryAttribute.name);
+					else if (geometryAttribute.name.equals("color")) {
+						GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+						GL11.glColorPointer(geometryAttribute.size,
+								geometryAttribute.type.getType(), 0, dataOffset);
+					}
+					System.out.println("Vertex attribute name: " + geometryAttribute.name);
 				}
 
 				geometryInfo.attributeNames[i] = geometryAttribute.name;
