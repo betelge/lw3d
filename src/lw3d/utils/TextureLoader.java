@@ -21,6 +21,16 @@ import lw3d.renderer.Texture.WrapMode;
 public class TextureLoader {
 	
 	static private Object object = new Object();
+	
+	static public Texture loadTextureExceptionless(String filename) {
+		try {
+			return TextureLoader.loadTexture(filename);
+		} catch (IOException e) {
+			System.out.println("TODO: Add a default fall back texture.");
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 	static public Texture loadTexture(String filename) throws IOException {
 		InputStream is = object.getClass().getResourceAsStream(filename);
@@ -28,17 +38,92 @@ public class TextureLoader {
 			System.out.println("Cant't load texture: " + filename);
 		BufferedImage image = ImageIO.read(is);
 		DataBuffer data = image.getData().getDataBuffer();
-
+		
 		int dataSize = data.getSize();
+		Texture.Format format;
+		Texture.TexelType texelType;
 
 		ByteBuffer buffer = BufferUtils.createByteBuffer( 4 * dataSize );
-		for (int i = 0; i < dataSize; i++)
-			buffer.put((byte) data.getElem(i));
+		
+		// Handle different formats
+		switch(image.getType()) {
+		case BufferedImage.TYPE_INT_RGB:
+			System.out.println("TYPE_INT_RGB");
+			for (int i = 0; i < dataSize; i++)
+				buffer.put((byte) data.getElem(i));
+			format = Format.GL_COMPRESSED_RGB;
+			texelType = TexelType.UINT;
+			break;
+		case BufferedImage.TYPE_INT_BGR:
+			System.out.println("TYPE_INT_BGR");
+			for (int i = 0; i < dataSize; i += 3) {
+				buffer.put((byte) data.getElem(i+2));
+				buffer.put((byte) data.getElem(i+1));
+				buffer.put((byte) data.getElem(i));
+			}
+			format = Format.GL_COMPRESSED_RGB;
+			texelType = TexelType.UINT;
+			break;
+		case BufferedImage.TYPE_INT_ARGB:
+			System.out.println("TYPE_INT_ARGB");
+			for (int i = 0; i < dataSize; i++)
+				buffer.put((byte) data.getElem(i));
+			format = Format.GL_COMPRESSED_RGBA;
+			texelType = TexelType.UINT;
+			break;
+		case BufferedImage.TYPE_INT_ARGB_PRE:
+			System.out.println("TYPE_INT_ARGB_PRE");
+			for (int i = 0; i < dataSize; i++)
+				buffer.put((byte) data.getElem(i));
+			format = Format.GL_COMPRESSED_RGBA;
+			texelType = TexelType.UINT;
+			break;
+		case BufferedImage.TYPE_3BYTE_BGR:
+			System.out.println("TYPE_3BYTE_BGR");
+			for (int i = 0; i < dataSize; i += 3) {
+				buffer.put((byte) data.getElem(i));
+				buffer.put((byte) data.getElem(i+1));
+				buffer.put((byte) data.getElem(i+2));
+			}
+			format = Format.GL_COMPRESSED_RGB;
+			texelType = TexelType.UBYTE;
+			break;
+		case BufferedImage.TYPE_4BYTE_ABGR:
+			System.out.println("TYPE_4BYTE_ABGR");
+			for (int i = 0; i < dataSize; i += 4) {
+				buffer.put((byte) data.getElem(i+3));
+				buffer.put((byte) data.getElem(i+2));
+				buffer.put((byte) data.getElem(i+1));
+				buffer.put((byte) data.getElem(i));
+			}
+			format = Format.GL_COMPRESSED_RGBA;
+			texelType = TexelType.UBYTE;
+			break;
+		case BufferedImage.TYPE_4BYTE_ABGR_PRE:
+			System.out.println("TYPE_4BYTE_ABGR_PRE");
+			for (int i = 0; i < dataSize; i += 4) {
+				buffer.put((byte) data.getElem(i+3));
+				buffer.put((byte) data.getElem(i+2));
+				buffer.put((byte) data.getElem(i+1));
+				buffer.put((byte) data.getElem(i));
+			}
+			format = Format.GL_COMPRESSED_RGBA;
+			texelType = TexelType.UBYTE;
+			break;
+		default:
+			System.out.println("WARNING: Unknown texture format. Will use RGB.");
+			for (int i = 0; i < dataSize; i++)
+				buffer.put((byte) data.getElem(i));
+			format = Format.GL_COMPRESSED_RGB;
+			texelType = TexelType.UBYTE;
+			break;				
+		}
+
 		buffer.flip();
 
 		Texture texture = new Texture(buffer, Texture.TextureType.TEXTURE_2D,
-				image.getWidth(), image.getHeight(), Texture.TexelType.UBYTE,
-				Texture.Format.GL_COMPRESSED_RGB, Texture.Filter.LINEAR_MIPMAP_NEAREST,
+				image.getWidth(), image.getHeight(), texelType,
+				format, Texture.Filter.LINEAR_MIPMAP_LINEAR,
 				Texture.WrapMode.REPEAT);
 
 		return texture;
