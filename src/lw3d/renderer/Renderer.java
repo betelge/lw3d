@@ -70,7 +70,7 @@ public class Renderer {
 
 	long time = 0;
 
-	public Renderer(float fov, float zNear, float zFar, int width, int height, RendererMode rendererMode) {
+	public Renderer(int width, int height, RendererMode rendererMode) {
 		this.width = width;
 		this.height = height;
 		this.rendererMode = rendererMode;
@@ -116,31 +116,8 @@ public class Renderer {
 		// Initialize normal matrix
 		normalMatrix = BufferUtils.createFloatBuffer(9);
 
-		// Initialize perspecitve matrix
+		// Allocate perspective matrix
 		perspectiveMatrix = BufferUtils.createFloatBuffer(16);
-		float h = 1f / (float) Math.tan(fov * (float) Math.PI / 360f);
-		float aspect = width / (float) height;
-		perspectiveMatrix.put(h / aspect);
-		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put(0f);
-
-		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put(h);
-		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put(0f);
-
-		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put((zNear + zFar) / (zNear - zFar));
-		perspectiveMatrix.put(-1f);
-
-		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put(0f);
-		perspectiveMatrix.put(2f * (zNear * zFar) / (zNear - zFar));
-		perspectiveMatrix.put(0f);
-
-		perspectiveMatrix.flip();
 
 		if (rendererMode != RendererMode.SHADERS) {
 			GL11.glEnable(GL11.GL_LIGHTING);
@@ -168,6 +145,44 @@ public class Renderer {
 		
 		// Enable back-faces culling
 		GL11.glEnable(GL11.GL_CULL_FACE);
+	}
+	
+	static public void setPerspectiveMatrix( FloatBuffer perspectiveMatrix, 
+			float aspect, float fov, float zNear, float zFar ) {
+		// Assumes that perspectveMatrix has size >=16 and the position 0.
+		
+		perspectiveMatrix.put(getPerspectiveMatrix(aspect, fov, zNear, zFar));
+		perspectiveMatrix.flip();
+	}
+	
+	static public float[] getPerspectiveMatrix( 
+			float aspect, float fov, float zNear, float zFar ) {
+		// Assumes that perspectveMatrix has size >=16 and the position 0.
+		
+		float[] floats = new float[16]; 
+				
+		float h = 1f / (float) Math.tan(fov * (float) Math.PI / 360f);
+		floats[0] = h / aspect;
+		floats[1] = 0f;
+		floats[2] = 0f;
+		floats[3] = 0f;
+		
+		floats[4] = 0f;
+		floats[5] = h;
+		floats[6] = 0f;
+		floats[7] = 0f;
+	
+		floats[8] = 0f;
+		floats[9] = 0f;
+		floats[10] = (zNear + zFar) / (zNear - zFar);
+		floats[11] = -1f;
+	
+		floats[12] = 0f;
+		floats[13] = 0f;
+		floats[14] = 2f * (zNear * zFar) / (zNear - zFar);
+		floats[15] = 0f;
+		
+		return floats;
 	}
 	
 	public void setState(SetPass.State state, boolean set) {
@@ -258,19 +273,14 @@ public class Renderer {
 		Vector3f camPos = cameraTransform.getPosition().mult(-1f);
 		Quaternion camRot = cameraTransform.getRotation().inverse();
 
-		// camRot.mult(camPos, camPos);
-
 		Transform rotationTransform = new Transform(new Vector3f(), camRot);
 		Transform translationTransform = new Transform(camPos, new Quaternion());
 
-		/*
-		 * new Transform(camPos, new Quaternion()) .mult(new Transform(new
-		 * Vector3f(), camRot)
-		 */
-
-		Transform trans = rotationTransform.mult(translationTransform);// .mult(translationTransform);
-
-		cameraTransform = trans;// new Transform();
+		// Inverted order
+		cameraTransform = rotationTransform.mult(translationTransform);
+		
+		setPerspectiveMatrix(perspectiveMatrix, cameraNode.getAspect(),
+				cameraNode.getFov(), cameraNode.getzNear(), cameraNode.getzFar());
 
 		time = Sys.getTime();
 
@@ -290,10 +300,14 @@ public class Renderer {
 	}
 
 	public void renderScene(Node rootNode, CameraNode cameraNode) {
-		renderScene(rootNode, cameraNode, null);
+		renderScene(rootNode, cameraNode, null, null);
+	}
+	
+	public void renderScene(Node rootNode, CameraNode cameraNode, FBO fbo) {
+		renderScene(rootNode, cameraNode, fbo, null);
 	}
 
-	public void renderScene(Node rootNode, CameraNode cameraNode, FBO fbo) {
+	public void renderScene(Node rootNode, CameraNode cameraNode, FBO fbo, Material overrideMaterial) {
 
 		renderSceneNonOpenGL(rootNode, cameraNode);
 
@@ -348,28 +362,32 @@ public class Renderer {
 				// Bind VAO
 				ARBVertexArrayObject.glBindVertexArray(geometryInfo.VAO);
 			}
+			
+			Material material;
+			if(overrideMaterial == null)
+				material = geometryNode.getMaterial();
+			else
+				material = overrideMaterial;
 
 			// Set shader
 			Map<String, Texture> textures = null;
 			if (rendererMode != RendererMode.FIXED) {
-				shaderProgram = geometryNode.getMaterial().getShaderProgram();
+				shaderProgram = material.getShaderProgram();
 				if (oldShaderProgram != shaderProgram) {
 					shaderProgramHandle = shaderManager
-							.getShaderProgramHandle(geometryNode.getMaterial()
-									.getShaderProgram());
+							.getShaderProgramHandle(material.getShaderProgram());
 					ARBShaderObjects.glUseProgramObjectARB(shaderProgramHandle);
 				}
 
 				// Bind textures
-				textures = geometryNode.getMaterial()
-						.getTextures();
+				textures = material.getTextures();
 				if (oldTextures != textures
 						|| oldShaderProgramHandle != shaderProgramHandle) {
 					bindTextures(shaderProgramHandle, textures);
 				}
 
 				// Upload uniforms
-				uniforms = geometryNode.getMaterial().getUniforms();
+				uniforms = material.getUniforms();
 				if (oldUniforms != uniforms
 						|| oldShaderProgramHandle != shaderProgramHandle) {
 					// TODO: check for changes instead?
@@ -559,7 +577,17 @@ public class Renderer {
 							(int) floats[0], (int) floats[1], (int) floats[2],
 							(int) floats[3]);
 					break;
+				case MATRIX2:
+					ARBShaderObjects.glUniformMatrix2ARB(uniformLocation, uniforms[i].isTranspose(), uniforms[i].getMatrix());
+					break;
+				case MATRIX3:
+					ARBShaderObjects.glUniformMatrix3ARB(uniformLocation, uniforms[i].isTranspose(), uniforms[i].getMatrix());
+					break;
+				case MATRIX4:
+					ARBShaderObjects.glUniformMatrix4ARB(uniformLocation, uniforms[i].isTranspose(), uniforms[i].getMatrix());
+					break;
 				default:
+					System.out.println("Error: Unknown uniform type, " + uniforms[i].getName());
 					break;
 				}
 			}

@@ -45,6 +45,7 @@ public class Material {
 	}
 
 	public void addUniform(Uniform uniform) {
+		if (uniform == null) return;
 		if (uniforms == null)
 			uniforms = new Uniform[1];
 		else {

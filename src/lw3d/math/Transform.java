@@ -114,6 +114,17 @@ public class Transform {
 		this.scale = scale;
 	}
 	
+	public Transform getCameraTransform() {
+		Vector3f camPos = position.mult(-1f);
+		Quaternion camRot = rotation.inverse();
+
+		Transform rotationTransform = new Transform(new Vector3f(), camRot);
+		Transform translationTransform = new Transform(camPos, new Quaternion());
+
+		// Inverted order
+		return rotationTransform.mult(translationTransform);
+	}
+	
 	public float[] toMatrix4() {
 		float[] m = new float[16];
 		float[] qm = rotation.toMatrix3();

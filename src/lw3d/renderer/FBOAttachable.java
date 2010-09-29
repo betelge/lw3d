@@ -1,5 +1,6 @@
 package lw3d.renderer;
 
+import org.lwjgl.opengl.ARBDepthTexture;
 import org.lwjgl.opengl.ARBTextureCompression;
 import org.lwjgl.opengl.ARBTextureFloat;
 import org.lwjgl.opengl.GL11;
@@ -21,6 +22,10 @@ public class FBOAttachable {
 
 		GL_DEPTH_COMPONENT(0, GL11.GL_DEPTH_COMPONENT, 2), GL_STENCIL_INDEX(0,
 				GL11.GL_STENCIL_INDEX, 1),
+				
+		GL_DEPTH_COMPONENT16(GL11.GL_DEPTH_COMPONENT, ARBDepthTexture.GL_DEPTH_COMPONENT16_ARB, 4),
+		GL_DEPTH_COMPONENT24(GL11.GL_DEPTH_COMPONENT, ARBDepthTexture.GL_DEPTH_COMPONENT24_ARB, 4),
+		GL_DEPTH_COMPONENT32(GL11.GL_DEPTH_COMPONENT, ARBDepthTexture.GL_DEPTH_COMPONENT32_ARB, 4),
 
 		GL_COMPRESSED_RGB(GL11.GL_RGB, ARBTextureCompression.GL_COMPRESSED_RGB_ARB, 3),
 		GL_COMPRESSED_RGBA(GL11.GL_RGBA, ARBTextureCompression.GL_COMPRESSED_RGBA_ARB, 4);

@@ -29,6 +29,8 @@ public class Lw3dView {
 
 	private Thread openGLThread;
 	private Renderer renderer;
+	
+	private Runnable beforeFrameRunnable = null;
 
 	private long time;
 	private long lastFPSTime;
@@ -82,13 +84,16 @@ public class Lw3dView {
 						Display.getDisplayMode().getHeight());
 			}
 						
-			renderer = new Renderer(45f, 0.01f, 1000f, model.getDrawWidth(),
-					model.getDrawHeight(), model.getRendererMode());
+			renderer = new Renderer(model.getDrawWidth(), model.getDrawHeight(),
+					model.getRendererMode());
 			
 			state = State.LOOP;
 			lastFPSTime = Sys.getTime();
 
 			while (state != State.CLOSING) {
+				
+				if(beforeFrameRunnable != null)
+					beforeFrameRunnable.run();	
 
 				List<RenderPass> renderPasses = model.getRenderPasses();
 				synchronized (renderPasses) {
@@ -136,7 +141,8 @@ public class Lw3dView {
 					renderer.renderScene(
 							((SceneRenderPass) renderPass).getRootNode(),
 							((SceneRenderPass) renderPass).getCameraNode(),
-							renderPass.getFbo());
+							renderPass.getFbo(),
+							((SceneRenderPass) renderPass).getOverrideMaterial());
 				}
 				else if(renderPass instanceof QuadRenderPass) {
 					renderer.renderQuad(
@@ -152,6 +158,14 @@ public class Lw3dView {
 
 	public void exit() {
 		state = State.CLOSING;
+	}
+
+	public Runnable getBeforeFrameRunnable() {
+		return beforeFrameRunnable;
+	}
+
+	public void setBeforeFrameRunnable(Runnable beforeFrameRunnable) {
+		this.beforeFrameRunnable = beforeFrameRunnable;
 	}
 
 }
