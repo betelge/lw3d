@@ -27,16 +27,23 @@ public class Matrix4 {
 			return 0;
 	}
 	
-	public Matrix4 mult(Matrix4 m) {
+	public void multThis(Matrix4 m) {
 		float[] newF = new float[16];
 		float[] argF = m.getFloats();
 		
 		for(int i = 0; i < 4; i++) {
 			for(int j = 0; j < 4; j++) {
-				newF[4*i+j] = floats[4*i]*argF[j] + floats[4*i+1]*argF[j+1] + floats[4*i+2]*argF[j+2] + floats[4*i+3]*argF[j+3];
+				newF[4*i+j] = floats[4*i]*argF[j] + floats[4*i+1]*argF[j+4]
+				+ floats[4*i+2]*argF[j+2*4] + floats[4*i+3]*argF[j+3*4];
 			}
 		}
 		
-		return new Matrix4(newF);
+		floats = newF;
+	}
+	
+	public Matrix4 mult(Matrix4 m) {
+		Matrix4 newMatrix = new Matrix4(floats);
+		newMatrix.multThis(m);
+		return newMatrix;
 	}
 }

@@ -268,16 +268,7 @@ public class Renderer {
 		backRenderNodes.clear();
 		backRenderTransforms.clear();
 
-		cameraTransform = cameraNode.getAbsoluteTransform();
-
-		Vector3f camPos = cameraTransform.getPosition().mult(-1f);
-		Quaternion camRot = cameraTransform.getRotation().inverse();
-
-		Transform rotationTransform = new Transform(new Vector3f(), camRot);
-		Transform translationTransform = new Transform(camPos, new Quaternion());
-
-		// Inverted order
-		cameraTransform = rotationTransform.mult(translationTransform);
+		cameraTransform = cameraNode.getAbsoluteTransform().getCameraTransform();
 		
 		setPerspectiveMatrix(perspectiveMatrix, cameraNode.getAspect(),
 				cameraNode.getFov(), cameraNode.getzNear(), cameraNode.getzFar());
